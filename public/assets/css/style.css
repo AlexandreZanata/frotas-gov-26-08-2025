@@ -63,3 +63,34 @@ body {
 .btn:hover {
     background-color: #0056b3; /* Azul mais escuro ao passar o mouse */
 }
+
+/* Estilos para a página de erro */
+.error-container {
+    background-color: #ffffff;
+    padding: 40px 50px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+    border-top: 5px solid #dc3545; /* Uma borda vermelha para indicar erro */
+}
+
+.error-title {
+    color: #dc3545;
+    margin-top: 0;
+}
+
+.error-message {
+    color: #555;
+    font-size: 1.1em;
+    margin-bottom: 30px;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}

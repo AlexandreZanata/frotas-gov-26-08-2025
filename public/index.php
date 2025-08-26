@@ -12,6 +12,7 @@ require_once __DIR__ . '/../config/config.php';
 // Carrega as classes principais do core
 require_once __DIR__ . '/../app/core/Router.php';
 require_once __DIR__ . '/../app/core/Request.php';
+require_once __DIR__ . '/../app/core/helpers.php'
 
 // Cria uma instância do roteador
 $router = new Router();

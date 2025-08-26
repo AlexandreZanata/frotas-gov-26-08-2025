@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-g">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Frotas Gov</title>
     <link rel="stylesheet" href="/frotas-gov/public/assets/css/style.css">
@@ -11,8 +11,8 @@
         <h2>Frotas Gov</h2>
         <form class="login-form" action="/frotas-gov/public/login/auth" method="POST">
             <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+                <label for="login">Email ou CPF:</label>
+                <input type="text" id="login" name="login" required>
             </div>
             <div class="form-group">
                 <label for="password">Senha:</label>
@@ -24,7 +24,6 @@
             </div>
             <button type="submit" class="btn">Entrar</button>
         </form>
-        
     </div>
 </body>
 </html>
