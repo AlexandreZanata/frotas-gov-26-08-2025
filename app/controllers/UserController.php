@@ -11,75 +11,72 @@ require_once __DIR__ . '/../core/Database.php';
 class UserController
 {
     /**
-     * Exibe o formulário para criar um novo usuário.
+     * Exibe o formulário público para criar um novo usuário.
+     * Não requer mais login de administrador.
      */
     public function create()
     {
-        // 1. Acesso: Garante que apenas administradores acessem esta página
-        Auth::checkAdmin();
-
-        // 2. CSRF: Gera um token para proteger o formulário
+        // 1. CSRF: Gera um token para proteger o formulário
         if (empty($_SESSION['csrf_token'])) {
             $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         }
         
-        // 3. Dados: Busca as secretarias no banco para preencher o <select>
+        // 2. Dados: Busca as secretarias no banco para preencher o <select>
         $database = new Database();
         $conn = $database->getConnection();
         $secretariats = $conn->query("SELECT id, name FROM secretariats ORDER BY name ASC")->fetchAll();
 
-        // 4. View: Carrega o formulário e passa os dados necessários
+        // 3. View: Carrega o formulário e passa os dados
         $data = [
             'secretariats' => $secretariats,
             'csrf_token' => $_SESSION['csrf_token']
         ];
         
-        // Carrega a view passando as variáveis $secretariats e $csrf_token
         extract($data);
         require_once __DIR__ . '/../../templates/pages/users/create.php';
     }
 
     /**
-     * Armazena o novo usuário no banco de dados.
+     * Armazena o novo usuário no banco com status 'inactive'.
      */
     public function store()
     {
-        // 1. Acesso e Segurança: Garante que é um admin e que o token CSRF é válido
-        Auth::checkAdmin();
+        // 1. Segurança: Validação do token CSRF
         if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
-            die('Erro de validação CSRF. Ação bloqueada.');
+            show_error_page('Acesso Inválido', 'Houve um erro de validação de segurança (CSRF).', 403);
         }
 
-        // 2. Validação dos Dados (ESSENCIAL)
+        // 2. Validação dos Dados
         $name = trim($_POST['name']);
         $email = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
-        $cpf = preg_replace('/[^0-9]/', '', $_POST['cpf']); // Remove formatação do CPF
+        $cpf = preg_replace('/[^0-9]/', '', $_POST['cpf']);
         $password = $_POST['password'];
         $secretariat_id = filter_input(INPUT_POST, 'secretariat_id', FILTER_VALIDATE_INT);
 
-        // Validações de campos obrigatórios e formato
         if (empty($name) || !$email || empty($password) || !$secretariat_id || strlen($cpf) != 11) {
-            die('Todos os campos são obrigatórios e devem ser válidos.');
+            show_error_page('Dados Inválidos', 'Todos os campos são obrigatórios e devem ser preenchidos corretamente.');
+        }
+        if (strlen($password) < 8) {
+            show_error_page('Senha Inválida', 'A senha deve ter no mínimo 8 caracteres.');
         }
 
         // 3. Conexão e Verificação de Duplicidade
         $database = new Database();
         $conn = $database->getConnection();
-
         $stmt = $conn->prepare("SELECT id FROM users WHERE email = :email OR cpf = :cpf");
         $stmt->execute(['email' => $email, 'cpf' => $cpf]);
         if ($stmt->fetch()) {
-            die('O email ou CPF informado já está cadastrado no sistema.');
+            show_error_page('Erro de Cadastro', 'O e-mail ou CPF informado já está cadastrado.');
         }
 
         // 4. Inserção Segura no Banco
         try {
-            // Hash da senha usando nossa classe de segurança
             $hashedPassword = Hash::make($password);
 
+            // MUDANÇA PRINCIPAL: status = 'inactive'
             $stmt = $conn->prepare(
                 "INSERT INTO users (name, email, cpf, password, secretariat_id, role_id, status) 
-                 VALUES (:name, :email, :cpf, :password, :secretariat_id, 4, 'active')" // Role 4 = Motorista (padrão)
+                 VALUES (:name, :email, :cpf, :password, :secretariat_id, 4, 'inactive')" // Role 4 = Motorista, status = inativo
             );
 
             $stmt->execute([
@@ -90,16 +87,16 @@ class UserController
                 'secretariat_id' => $secretariat_id,
             ]);
 
-            // Remove o token para que não possa ser reutilizado
             unset($_SESSION['csrf_token']);
             
-            // Redireciona para uma página de sucesso ou para a lista de usuários
-            echo "Usuário criado com sucesso!";
-            // header('Location: /frotas-gov/public/users'); // Exemplo de redirecionamento futuro
+            // Exibe uma página de sucesso para o usuário
+            // Futuramente, podemos criar uma view para isso
+            echo "<h1>Cadastro Realizado com Sucesso!</h1>";
+            echo "<p>Sua conta foi criada e aguarda a aprovação de um administrador. Você será notificado por e-mail quando sua conta for ativada.</p>";
+            echo '<a href="/frotas-gov/public/login">Voltar para o Login</a>';
 
         } catch (PDOException $e) {
-            // Em produção, logar o erro em vez de exibi-lo
-            die('Erro ao criar usuário: ' . $e->getMessage());
+            show_error_page('Erro Interno', 'Não foi possível processar seu cadastro no momento. Tente novamente mais tarde.', 500);
         }
     }
 }
