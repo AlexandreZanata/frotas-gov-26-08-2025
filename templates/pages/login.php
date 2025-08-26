@@ -18,8 +18,13 @@
                 <label for="password">Senha:</label>
                 <input type="password" id="password" name="password" required>
             </div>
+            <div class="form-group-remember">
+                <input type="checkbox" id="remember_me" name="remember_me" value="1">
+                <label for="remember_me">Lembrar de mim por 30 dias</label>
+            </div>
             <button type="submit" class="btn">Entrar</button>
         </form>
+        
     </div>
 </body>
 </html>
