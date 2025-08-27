@@ -167,9 +167,13 @@ class DiarioBordoController
         $this->conn->beginTransaction();
         try {
             $run_stmt = $this->conn->prepare(
-                "INSERT INTO runs (vehicle_id, driver_id, start_time, status, start_km, destination) VALUES (:vehicle_id, :driver_id, NOW(), 'in_progress', NULL, NULL)"
+                "INSERT INTO runs (vehicle_id, driver_id, secretariat_id, start_time, status, start_km, destination) VALUES (:vehicle_id, :driver_id, :secretariat_id, NOW(), 'in_progress', NULL, NULL)"
             );
-            $run_stmt->execute(['vehicle_id' => $vehicle_id, 'driver_id' => $this->user['id']]);
+            $run_stmt->execute([
+                'vehicle_id' => $vehicle_id, 
+                'driver_id' => $this->user['id'],
+                'secretariat_id' => $this->user['secretariat_id'] 
+            ]);
             $run_id = $this->conn->lastInsertId();
 
             $_SESSION['run_id'] = $run_id;
@@ -448,6 +452,7 @@ class DiarioBordoController
                 'run_id' => $_SESSION['run_id'],
                 'user_id' => $this->user['id'],
                 'vehicle_id' => $_SESSION['run_vehicle_id'],
+                'secretariat_id' => $this->user['secretariat_id'],
                 'km' => filter_var($fueling_data['km'], FILTER_VALIDATE_INT),
                 'liters' => $liters,
                 'fuel_type_id' => $fuel_type_id_to_save,
@@ -459,8 +464,8 @@ class DiarioBordoController
             ];
 
             $stmt = $this->conn->prepare(
-                "INSERT INTO fuelings (run_id, user_id, vehicle_id, km, liters, fuel_type_id, gas_station_id, gas_station_name, total_value, is_manual, invoice_path)
-                 VALUES (:run_id, :user_id, :vehicle_id, :km, :liters, :fuel_type_id, :gas_station_id, :gas_station_name, :total_value, :is_manual, :invoice_path)"
+                "INSERT INTO fuelings (run_id, user_id, vehicle_id, secretariat_id, km, liters, fuel_type_id, gas_station_id, gas_station_name, total_value, is_manual, invoice_path)
+                VALUES (:run_id, :user_id, :vehicle_id, :secretariat_id, :km, :liters, :fuel_type_id, :gas_station_id, :gas_station_name, :total_value, :is_manual, :invoice_path)"
             );
             $stmt->execute($params);
 

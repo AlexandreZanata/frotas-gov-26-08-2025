@@ -104,4 +104,20 @@ class Auth
             exit();
         }
     }
+
+    /**
+     * Verifica se o usuário logado é um Gestor de Setor.
+     */
+    public static function checkSectorManager()
+    {
+        // Primeiro, garante que o usuário está logado
+        self::checkAuthentication();
+        // Verifica se a role do usuário na sessão não é de gestor de setor
+        // Supondo que 'sector_manager' tem role_id = 2
+        if (!isset($_SESSION['user_role_id']) || $_SESSION['user_role_id'] != 2) {
+            http_response_code(403); // Código HTTP para "Acesso Proibido"
+            echo "<h1>Acesso Negado</h1><p>Você não tem permissão para acessar esta página.</p>";
+            exit();
+        }
+    }
 }

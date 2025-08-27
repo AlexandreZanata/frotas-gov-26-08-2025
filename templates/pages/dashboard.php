@@ -19,7 +19,6 @@
                 <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Painel</a></li>
                 <li><a href="<?php echo BASE_URL; ?>/runs/new"><i class="fas fa-book"></i> Diário de Bordo</a></li>
                 <li><a href="<?php echo BASE_URL; ?>/runs/history"><i class="fas fa-road"></i> Minhas Corridas</a></li>
-                <li><a href="#"><i class="fas fa-car"></i> Veículos</a></li>
                 <?php if (isset($_SESSION['user_role_id']) && $_SESSION['user_role_id'] == 1): ?>
                     <li>
                         <a href="/frotas-gov/public/users/create">
@@ -66,10 +65,6 @@
                 <h3><i class="fas fa-book"></i> Iniciar Diário</h3>
                 <p>Registrar uma nova corrida.</p>
             </a>
-            <button class="mobile-button">
-                <h3>Veículo Atual</h3>
-                <p>Nenhum veículo em uso no momento.</p>
-            </button>
             <a href="<?php echo BASE_URL; ?>/runs/history" class="mobile-button" style="text-decoration: none;">
                 <h3><i class="fas fa-road"></i> Minhas Corridas</h3>
                 <p>Acesse seu histórico de viagens.</p>

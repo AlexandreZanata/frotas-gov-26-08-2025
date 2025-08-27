@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 27, 2025 at 09:24 PM
+-- Generation Time: Aug 27, 2025 at 10:19 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -70,7 +70,13 @@ INSERT INTO `auth_tokens` (`id`, `selector`, `hashed_validator`, `user_id`, `exp
 (10, '7af825d8923c94a406554a38c5a5d60d', 'e988ee111f46692a65531e825867ff015f6a8baec29e86d4c5d9f4d82469ec1c', 2, '2025-09-26 15:35:21'),
 (11, 'd116dbd16a9408ef483cdb9aa7103029', 'ee1a02676586ce02ea37bc0231cad001cfbb671f13ea4ea81b92fc1aba681c09', 2, '2025-09-26 15:35:58'),
 (12, 'eae35166de8c5c2af94a3248318728ad', 'e4911f151b06619be2424c052e27c09d5e4aaea7380e5b8396b81864aed1454c', 2, '2025-09-26 16:04:00'),
-(13, 'de609919f22ab1e48da7c82010753612', '89ab9852671c024338628eca29a709d26b8cc30613b2efee9000bd3668e0c16b', 2, '2025-09-26 17:51:04');
+(13, 'de609919f22ab1e48da7c82010753612', '89ab9852671c024338628eca29a709d26b8cc30613b2efee9000bd3668e0c16b', 2, '2025-09-26 17:51:04'),
+(14, 'e385c7869f488af56671118049a1e6cc', '049b27df19bf1eecc8ac2707d8769bc3e8f9426851b45523d86cef134d2e4528', 3, '2025-09-26 21:34:50'),
+(15, '1657e49121c68ba5b49e687166644595', 'de8614a684cf14a47273f780350dada140cdcce8fc9302d4e07515a38666a601', 3, '2025-09-26 21:39:40'),
+(16, '1e4cd8738b9f2f6daa0b68280cac047b', 'd4d31304c69fed322f9d8522c551ebb716723b4044c006de1298fe48b8d8bfa5', 2, '2025-09-26 21:54:14'),
+(17, '246a66d31ad4108670a1f4d7f988fdb9', 'fbf4dc4b9b8f9274db0ce78c042fe14795a2b576bb1c59c9947d9ad9954e302e', 2, '2025-09-26 21:56:00'),
+(18, '4c679ca5a8ed0f9405cd8431c496caa6', '90dded496bade8581eec3a706a26ec993cdb0d0db925ad938dbe766f1dc4db23', 2, '2025-09-26 22:02:58'),
+(19, '8f715f4f7dd884d4c63bf33122e536b9', '9112134ba414d45144945971c40a665fdb4fef5c9646d86f45f1ae3fc1112a57', 2, '2025-09-26 22:13:35');
 
 -- --------------------------------------------------------
 
@@ -95,7 +101,10 @@ INSERT INTO `checklists` (`id`, `run_id`, `user_id`, `vehicle_id`, `created_at`)
 (2, 2, 2, 2, '2025-08-27 14:45:18'),
 (3, 3, 2, 2, '2025-08-27 14:47:29'),
 (5, 5, 2, 2, '2025-08-27 15:17:28'),
-(6, 6, 2, 2, '2025-08-27 15:43:25');
+(6, 6, 2, 2, '2025-08-27 15:43:25'),
+(15, 50, 3, 2, '2025-08-27 19:35:27'),
+(16, 51, 3, 2, '2025-08-27 19:39:14'),
+(17, 52, 2, 2, '2025-08-27 20:06:32');
 
 -- --------------------------------------------------------
 
@@ -155,7 +164,31 @@ INSERT INTO `checklist_answers` (`id`, `checklist_id`, `item_id`, `status`, `not
 (45, 6, 5, 'ok', NULL),
 (46, 6, 6, 'ok', NULL),
 (47, 6, 7, 'attention', NULL),
-(48, 6, 8, 'problem', 'wewewe');
+(48, 6, 8, 'problem', 'wewewe'),
+(113, 15, 1, 'ok', NULL),
+(114, 15, 2, 'problem', 'eweew'),
+(115, 15, 3, 'attention', NULL),
+(116, 15, 4, 'ok', NULL),
+(117, 15, 5, 'ok', NULL),
+(118, 15, 6, 'ok', NULL),
+(119, 15, 7, 'attention', NULL),
+(120, 15, 8, 'problem', 'wewewe'),
+(121, 16, 1, 'ok', NULL),
+(122, 16, 2, 'problem', 'eweew'),
+(123, 16, 3, 'attention', NULL),
+(124, 16, 4, 'ok', NULL),
+(125, 16, 5, 'ok', NULL),
+(126, 16, 6, 'ok', NULL),
+(127, 16, 7, 'attention', NULL),
+(128, 16, 8, 'problem', 'wewewe'),
+(129, 17, 1, 'ok', NULL),
+(130, 17, 2, 'problem', 'eweew'),
+(131, 17, 3, 'attention', NULL),
+(132, 17, 4, 'ok', NULL),
+(133, 17, 5, 'ok', NULL),
+(134, 17, 6, 'ok', NULL),
+(135, 17, 7, 'attention', NULL),
+(136, 17, 8, 'problem', 'wewewe');
 
 -- --------------------------------------------------------
 
@@ -208,6 +241,7 @@ CREATE TABLE `fuelings` (
   `run_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `vehicle_id` int(11) NOT NULL,
+  `secretariat_id` int(11) DEFAULT NULL,
   `gas_station_id` int(11) DEFAULT NULL,
   `gas_station_name` varchar(150) DEFAULT NULL COMMENT 'Para abastecimento manual',
   `km` int(10) UNSIGNED NOT NULL,
@@ -223,9 +257,10 @@ CREATE TABLE `fuelings` (
 -- Dumping data for table `fuelings`
 --
 
-INSERT INTO `fuelings` (`id`, `run_id`, `user_id`, `vehicle_id`, `gas_station_id`, `gas_station_name`, `km`, `liters`, `fuel_type_id`, `total_value`, `invoice_path`, `is_manual`, `created_at`) VALUES
-(5, 6, 2, 2, 2, NULL, 143, 34.00, 3, 137.70, 'uploads/invoices/invoice_68af36b6d762e7.47968285.png', 0, '2025-08-27 16:47:50'),
-(6, 6, 2, 2, NULL, 'weweew', 1234, 12.00, 2, 1400.00, 'uploads/invoices/invoice_68af36cc8dca08.64027085.png', 1, '2025-08-27 16:48:12');
+INSERT INTO `fuelings` (`id`, `run_id`, `user_id`, `vehicle_id`, `secretariat_id`, `gas_station_id`, `gas_station_name`, `km`, `liters`, `fuel_type_id`, `total_value`, `invoice_path`, `is_manual`, `created_at`) VALUES
+(5, 6, 2, 2, NULL, 2, NULL, 143, 34.00, 3, 137.70, 'uploads/invoices/invoice_68af36b6d762e7.47968285.png', 0, '2025-08-27 16:47:50'),
+(6, 6, 2, 2, NULL, NULL, 'weweew', 1234, 12.00, 2, 1400.00, 'uploads/invoices/invoice_68af36cc8dca08.64027085.png', 1, '2025-08-27 16:48:12'),
+(79, 52, 2, 2, 4, 3, NULL, 108, 15.00, 4, 91.50, 'uploads/invoices/invoice_68af6658b96c95.91108723.jpeg', 0, '2025-08-27 20:11:04');
 
 -- --------------------------------------------------------
 
@@ -329,6 +364,7 @@ CREATE TABLE `runs` (
   `id` int(11) NOT NULL,
   `vehicle_id` int(11) NOT NULL,
   `driver_id` int(11) NOT NULL,
+  `secretariat_id` int(11) DEFAULT NULL,
   `start_km` int(10) UNSIGNED DEFAULT NULL,
   `end_km` int(10) UNSIGNED DEFAULT NULL,
   `start_time` datetime NOT NULL,
@@ -342,12 +378,15 @@ CREATE TABLE `runs` (
 -- Dumping data for table `runs`
 --
 
-INSERT INTO `runs` (`id`, `vehicle_id`, `driver_id`, `start_km`, `end_km`, `start_time`, `end_time`, `destination`, `stop_point`, `status`) VALUES
-(1, 2, 2, 100, 101, '2025-08-27 10:25:57', '2025-08-27 10:43:34', 'ALEXANDRE TESTE sdjidijisdjsdijisdjsdjidsjisdjsdjijsdijsdjisdjisdjisdjidsjidsjijdsijisdj nsdjsdjsd sdjjsdjds', 'teste', 'completed'),
-(2, 2, 2, 101, 103, '2025-08-27 10:45:18', '2025-08-27 10:46:35', 'teste 3', 'teste2', 'completed'),
-(3, 2, 2, 103, 104, '2025-08-27 10:47:29', '2025-08-27 10:50:16', 'tesr3', 'eeee', 'completed'),
-(5, 2, 2, 104, 108, '2025-08-27 11:17:28', '2025-08-27 11:17:39', '106', 'Teste', 'completed'),
-(6, 2, 2, 108, 109, '2025-08-27 11:43:25', '2025-08-27 13:05:31', 'teste', 'teste444', 'completed');
+INSERT INTO `runs` (`id`, `vehicle_id`, `driver_id`, `secretariat_id`, `start_km`, `end_km`, `start_time`, `end_time`, `destination`, `stop_point`, `status`) VALUES
+(1, 2, 2, NULL, 100, 101, '2025-08-27 10:25:57', '2025-08-27 10:43:34', 'ALEXANDRE TESTE sdjidijisdjsdijisdjsdjidsjisdjsdjijsdijsdjisdjisdjisdjidsjidsjijdsijisdj nsdjsdjsd sdjjsdjds', 'teste', 'completed'),
+(2, 2, 2, NULL, 101, 103, '2025-08-27 10:45:18', '2025-08-27 10:46:35', 'teste 3', 'teste2', 'completed'),
+(3, 2, 2, NULL, 103, 104, '2025-08-27 10:47:29', '2025-08-27 10:50:16', 'tesr3', 'eeee', 'completed'),
+(5, 2, 2, NULL, 104, 108, '2025-08-27 11:17:28', '2025-08-27 11:17:39', '106', 'Teste', 'completed'),
+(6, 2, 2, NULL, 108, 109, '2025-08-27 11:43:25', '2025-08-27 13:05:31', 'teste', 'teste444', 'completed'),
+(50, 2, 3, NULL, 109, 109, '2025-08-27 15:35:27', '2025-08-27 15:35:42', 'teste', 'teste', 'completed'),
+(51, 2, 3, NULL, 109, 109, '2025-08-27 15:39:14', '2025-08-27 15:42:18', 'teste', 'teste', 'completed'),
+(52, 2, 2, 4, 109, 110, '2025-08-27 16:06:32', '2025-08-27 16:11:12', 'teste', 'teste', 'completed');
 
 -- --------------------------------------------------------
 
@@ -402,7 +441,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `cpf`, `email`, `password`, `role_id`, `secretariat_id`, `department_id`, `cnh_number`, `cnh_expiry_date`, `profile_photo_path`, `phone`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'Admin Geral', '11122233344', 'admin@frotas.gov', '$2y$10$WknxPAb.e./JpX8Idgs6SemVv.7g75Lz29kE7J1wJ5VvshXn5B.eK', 1, 1, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-26 20:02:32', '2025-08-26 20:02:32'),
-(2, 'ALEXANDRE ZANATA', '12345678911', 'admin@example.com', '$2y$10$TLVbMeZPafx1qLYqCWGqcOtAhw2NrYfczQcCG5hK872ARZlgEqY1y', 4, 4, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-26 20:29:49', '2025-08-26 20:30:16');
+(2, 'ALEXANDRE ZANATA', '12345678911', 'admin@example.com', '$2y$10$TLVbMeZPafx1qLYqCWGqcOtAhw2NrYfczQcCG5hK872ARZlgEqY1y', 2, 4, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-26 20:29:49', '2025-08-27 20:13:26'),
+(3, 'Luis Ignacio Lula Zanata', '13131313131', 'L@13.com', '$2y$10$9rwKvc5vHXOxvQhBuRkIuehYRgzMgS0beGuy7y9HoknOCZDmTUiqW', 4, 4, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-27 19:34:17', '2025-08-27 19:34:41');
 
 -- --------------------------------------------------------
 
@@ -429,7 +469,7 @@ CREATE TABLE `vehicles` (
 
 INSERT INTO `vehicles` (`id`, `name`, `plate`, `prefix`, `current_secretariat_id`, `fuel_tank_capacity_liters`, `avg_km_per_liter`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'FIAT/STRADA FREEDOM CD', 'RGH7B21', 'V-10', 1, 55.00, 12.50, 'available', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
-(2, 'VW/GOL 1.6', 'PMJ5890', 'A-11', 4, 55.00, 11.20, 'available', '2025-08-27 13:55:47', '2025-08-27 18:47:02'),
+(2, 'VW/GOL 1.6', 'PMJ5890', 'A-11', 4, 55.00, 11.20, 'available', '2025-08-27 13:55:47', '2025-08-27 20:11:12'),
 (3, 'TOYOTA/HILUX SRV 4X4', 'SAD2A33', 'A-110', 4, 80.00, 9.80, 'in_use', '2025-08-27 13:55:47', '2025-08-27 17:19:20'),
 (4, 'CHEVROLET/ONIX 1.0', 'QWE4R56', 'SEC-042', 3, 44.00, 14.10, 'available', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
 (5, 'FORD/RANGER XLS CD', 'JKL9M87', 'VTR-008', 4, 80.00, 10.50, 'blocked', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
@@ -494,7 +534,8 @@ ALTER TABLE `fuelings`
   ADD KEY `user_id` (`user_id`),
   ADD KEY `vehicle_id` (`vehicle_id`),
   ADD KEY `gas_station_id` (`gas_station_id`),
-  ADD KEY `fuelings_ibfk_5` (`fuel_type_id`);
+  ADD KEY `fuelings_ibfk_5` (`fuel_type_id`),
+  ADD KEY `fuelings_ibfk_6` (`secretariat_id`);
 
 --
 -- Indexes for table `fuel_types`
@@ -530,7 +571,8 @@ ALTER TABLE `roles`
 ALTER TABLE `runs`
   ADD PRIMARY KEY (`id`),
   ADD KEY `vehicle_id` (`vehicle_id`),
-  ADD KEY `driver_id` (`driver_id`);
+  ADD KEY `driver_id` (`driver_id`),
+  ADD KEY `runs_ibfk_3` (`secretariat_id`);
 
 --
 -- Indexes for table `secretariats`
@@ -572,19 +614,19 @@ ALTER TABLE `audit_logs`
 -- AUTO_INCREMENT for table `auth_tokens`
 --
 ALTER TABLE `auth_tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT for table `checklists`
 --
 ALTER TABLE `checklists`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `checklist_answers`
 --
 ALTER TABLE `checklist_answers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=137;
 
 --
 -- AUTO_INCREMENT for table `checklist_items`
@@ -602,7 +644,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `fuelings`
 --
 ALTER TABLE `fuelings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
 
 --
 -- AUTO_INCREMENT for table `fuel_types`
@@ -632,7 +674,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `runs`
 --
 ALTER TABLE `runs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
 
 --
 -- AUTO_INCREMENT for table `secretariats`
@@ -644,7 +686,7 @@ ALTER TABLE `secretariats`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `vehicles`
@@ -697,7 +739,8 @@ ALTER TABLE `fuelings`
   ADD CONSTRAINT `fuelings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fuelings_ibfk_3` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fuelings_ibfk_4` FOREIGN KEY (`gas_station_id`) REFERENCES `gas_stations` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `fuelings_ibfk_5` FOREIGN KEY (`fuel_type_id`) REFERENCES `fuel_types` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+  ADD CONSTRAINT `fuelings_ibfk_5` FOREIGN KEY (`fuel_type_id`) REFERENCES `fuel_types` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+  ADD CONSTRAINT `fuelings_ibfk_6` FOREIGN KEY (`secretariat_id`) REFERENCES `secretariats` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `gas_station_fuels`
@@ -711,7 +754,8 @@ ALTER TABLE `gas_station_fuels`
 --
 ALTER TABLE `runs`
   ADD CONSTRAINT `runs_ibfk_1` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`),
-  ADD CONSTRAINT `runs_ibfk_2` FOREIGN KEY (`driver_id`) REFERENCES `users` (`id`);
+  ADD CONSTRAINT `runs_ibfk_2` FOREIGN KEY (`driver_id`) REFERENCES `users` (`id`),
+  ADD CONSTRAINT `runs_ibfk_3` FOREIGN KEY (`secretariat_id`) REFERENCES `secretariats` (`id`) ON DELETE SET NULL;
 
 --
 -- Constraints for table `users`
