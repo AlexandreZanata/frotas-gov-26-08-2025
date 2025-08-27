@@ -2,24 +2,85 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Frotas Gov</title>
-    </head>
+    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
 <body>
-    <h1>Painel de Controle</h1>
-    <p>Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?>! Bem-vindo ao sistema.</p>
-    <hr>
+    <div class="overlay"></div>
 
-    <?php 
-    // Mostra o link de cadastro apenas para o Gestor Geral (role_id = 1)
-    if (isset($_SESSION['user_role_id']) && $_SESSION['user_role_id'] == 1): 
-    ?>
-        <h3>Administração</h3>
-        <a href="/frotas-gov/public/users/create" style="padding: 10px; background-color: #28a745; color: white; text-decoration: none; border-radius: 5px;">
-            Cadastrar Novo Usuário
-        </a>
-        <br><br>
-    <?php endif; ?>
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <h2>Frotas Gov</h2>
+        </div>
+        <nav class="sidebar-nav">
+            <ul>
+                <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Painel</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/runs/new"><i class="fas fa-book"></i> Diário de Bordo</a></li>
+                <li><a href="#"><i class="fas fa-road"></i> Minhas Corridas</a></li>
+                <li><a href="#"><i class="fas fa-car"></i> Veículos</a></li>
+                <?php if (isset($_SESSION['user_role_id']) && $_SESSION['user_role_id'] == 1): ?>
+                    <li>
+                        <a href="/frotas-gov/public/users/create">
+                            <i class="fas fa-user-plus"></i> Cadastrar Usuário
+                        </a>
+                    </li>
+                <?php endif; ?>
+                <li><a href="/frotas-gov/public/logout"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
+            </ul>
+        </nav>
+    </aside>
 
-    <a href="/frotas-gov/public/logout">Sair do Sistema</a>
+    <main class="main-content">
+        <header class="mobile-header">
+            <h2>Painel</h2>
+            <button id="menu-toggle"><i class="fas fa-bars"></i></button>
+        </header>
+
+        <header class="header">
+            <h1>Painel de Controle</h1>
+            <div class="user-info">
+                <span>Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?>!</span>
+            </div>
+        </header>
+        
+        <section class="desktop-cards">
+            <div class="desktop-card">
+                <h3>Veículo Atual</h3>
+                <p>Nenhum veículo em uso no momento.</p>
+            </div>
+            <div class="desktop-card">
+                <h3>Última Corrida</h3>
+                <p>Secretaria de Saúde - 26/08/2025</p>
+            </div>
+            <div class="desktop-card">
+                <h3>Notificações</h3>
+                <p>Nenhuma nova notificação.</p>
+            </div>
+        </section>
+
+        <section class="mobile-buttons">
+            <a href="<?php echo BASE_URL; ?>/runs/new" class="mobile-button" style="text-decoration: none;">
+                <h3><i class="fas fa-book"></i> Iniciar Diário</h3>
+                <p>Registrar uma nova corrida.</p>
+            </a>
+            <button class="mobile-button">
+                <h3>Veículo Atual</h3>
+                <p>Nenhum veículo em uso no momento.</p>
+            </button>
+            <button class="mobile-button">
+                <h3>Última Corrida</h3>
+                <p>Secretaria de Saúde - 26/08/2025</p>
+            </button>
+            <button class="mobile-button">
+                <h3>Notificações</h3>
+                <p>Nenhuma nova notificação.</p>
+            </button>
+        </section>
+
+    </main>
+
+    <script src="<?php echo BASE_URL; ?>/assets/js/dashboard.js"></script>
 </body>
 </html>

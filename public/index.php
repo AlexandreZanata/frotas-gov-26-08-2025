@@ -36,7 +36,31 @@ $router->get('dashboard', 'DashboardController@index');
 // Rotas de Gestão de Usuários (Protegidas para Admin)
 // Mantemos estas rotas caso o admin também precise criar usuários diretamente
 $router->get('users/create', 'UserController@create'); 
-$router->post('users/store', 'UserController@store'); 
+$router->post('users/store', 'UserController@store');
+
+$router->get('runs/new', 'DiarioBordoController@create'); // Página 1: Escolher Veículo
+$router->post('runs/select-vehicle', 'DiarioBordoController@selectVehicle'); // Processa a escolha
+
+$router->get('runs/checklist', 'DiarioBordoController@checklist'); // Página 2: Checklist
+$router->post('runs/checklist/store', 'DiarioBordoController@storeChecklist'); // Salva o checklist
+
+$router->get('runs/start', 'DiarioBordoController@start'); // Página 3: Iniciar corrida
+$router->post('runs/start/store', 'DiarioBordoController@storeStart'); // Inicia a corrida
+
+$router->get('runs/finish', 'DiarioBordoController@finish'); // Página 4: Finalizar corrida
+$router->post('runs/finish/store', 'DiarioBordoController@storeFinish'); // Finaliza a corrida
+
+$router->get('runs/history', 'DiarioBordoController@history'); // Histórico de Corridas
+$router->post('runs/reports/generate', 'DiarioBordoController@generatePdfReport'); // Gerar PDF
+
+$router->post('runs/ajax-get-vehicle', 'DiarioBordoController@ajax_get_vehicle');
+$router->post('runs/select-vehicle', 'DiarioBordoController@selectVehicle'); 
+
+// Rota para o JavaScript buscar os combustíveis e preços de um posto
+$router->post('runs/ajax-get-fuels', 'DiarioBordoController@ajax_get_fuels_by_station');
+// Rota para salvar o abastecimento de forma independente
+$router->post('runs/fueling/store', 'DiarioBordoController@storeFueling');
+
 
 // Processa a requisição atual com a URL já tratada
 $router->dispatch(new Request());
