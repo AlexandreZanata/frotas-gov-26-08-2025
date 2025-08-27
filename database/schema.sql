@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 27, 2025 at 10:19 PM
+-- Generation Time: Aug 27, 2025 at 11:00 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -76,7 +76,10 @@ INSERT INTO `auth_tokens` (`id`, `selector`, `hashed_validator`, `user_id`, `exp
 (16, '1e4cd8738b9f2f6daa0b68280cac047b', 'd4d31304c69fed322f9d8522c551ebb716723b4044c006de1298fe48b8d8bfa5', 2, '2025-09-26 21:54:14'),
 (17, '246a66d31ad4108670a1f4d7f988fdb9', 'fbf4dc4b9b8f9274db0ce78c042fe14795a2b576bb1c59c9947d9ad9954e302e', 2, '2025-09-26 21:56:00'),
 (18, '4c679ca5a8ed0f9405cd8431c496caa6', '90dded496bade8581eec3a706a26ec993cdb0d0db925ad938dbe766f1dc4db23', 2, '2025-09-26 22:02:58'),
-(19, '8f715f4f7dd884d4c63bf33122e536b9', '9112134ba414d45144945971c40a665fdb4fef5c9646d86f45f1ae3fc1112a57', 2, '2025-09-26 22:13:35');
+(19, '8f715f4f7dd884d4c63bf33122e536b9', '9112134ba414d45144945971c40a665fdb4fef5c9646d86f45f1ae3fc1112a57', 2, '2025-09-26 22:13:35'),
+(20, 'e53fce6a628042aca798cd49a0bb8003', '50bcf770c281488b2b1265cd5da2e3b0c71197d0d730cc957bd3f07319d16ac0', 2, '2025-09-26 22:52:43'),
+(21, '1c3ba5040394324ec9cd695e92eb7490', '112e3e65d1b9baa29ce9e9c849009b44d71f303959c3bc2df5c6955a89bcd0b5', 2, '2025-09-26 22:53:35'),
+(22, 'a20d92ee5e098dd87f52b0e62485152c', '2cb1118fcc3469347c8203de9e0028bfd76533909870a6cd4f8efc004f2d74ba', 3, '2025-09-26 22:58:40');
 
 -- --------------------------------------------------------
 
@@ -97,14 +100,8 @@ CREATE TABLE `checklists` (
 --
 
 INSERT INTO `checklists` (`id`, `run_id`, `user_id`, `vehicle_id`, `created_at`) VALUES
-(1, 1, 2, 2, '2025-08-27 14:25:57'),
-(2, 2, 2, 2, '2025-08-27 14:45:18'),
-(3, 3, 2, 2, '2025-08-27 14:47:29'),
-(5, 5, 2, 2, '2025-08-27 15:17:28'),
-(6, 6, 2, 2, '2025-08-27 15:43:25'),
 (15, 50, 3, 2, '2025-08-27 19:35:27'),
-(16, 51, 3, 2, '2025-08-27 19:39:14'),
-(17, 52, 2, 2, '2025-08-27 20:06:32');
+(16, 51, 3, 2, '2025-08-27 19:39:14');
 
 -- --------------------------------------------------------
 
@@ -125,46 +122,6 @@ CREATE TABLE `checklist_answers` (
 --
 
 INSERT INTO `checklist_answers` (`id`, `checklist_id`, `item_id`, `status`, `notes`) VALUES
-(1, 1, 1, 'ok', NULL),
-(2, 1, 2, 'ok', NULL),
-(3, 1, 3, 'ok', NULL),
-(4, 1, 4, 'ok', NULL),
-(5, 1, 5, 'ok', NULL),
-(6, 1, 6, 'ok', NULL),
-(7, 1, 7, 'attention', NULL),
-(8, 1, 8, 'problem', 'teste erros'),
-(9, 2, 1, 'ok', NULL),
-(10, 2, 2, 'ok', NULL),
-(11, 2, 3, 'ok', NULL),
-(12, 2, 4, 'ok', NULL),
-(13, 2, 5, 'ok', NULL),
-(14, 2, 6, 'ok', NULL),
-(15, 2, 7, 'attention', NULL),
-(16, 2, 8, 'problem', 'fal o L'),
-(17, 3, 1, 'ok', NULL),
-(18, 3, 2, 'ok', NULL),
-(19, 3, 3, 'ok', NULL),
-(20, 3, 4, 'ok', NULL),
-(21, 3, 5, 'ok', NULL),
-(22, 3, 6, 'ok', NULL),
-(23, 3, 7, 'attention', NULL),
-(24, 3, 8, 'problem', 'aaaaa'),
-(33, 5, 1, 'ok', NULL),
-(34, 5, 2, 'problem', 'Hajkaka'),
-(35, 5, 3, 'attention', NULL),
-(36, 5, 4, 'ok', NULL),
-(37, 5, 5, 'ok', NULL),
-(38, 5, 6, 'ok', NULL),
-(39, 5, 7, 'attention', NULL),
-(40, 5, 8, 'problem', 'Isksks'),
-(41, 6, 1, 'ok', NULL),
-(42, 6, 2, 'problem', 'eweew'),
-(43, 6, 3, 'attention', NULL),
-(44, 6, 4, 'ok', NULL),
-(45, 6, 5, 'ok', NULL),
-(46, 6, 6, 'ok', NULL),
-(47, 6, 7, 'attention', NULL),
-(48, 6, 8, 'problem', 'wewewe'),
 (113, 15, 1, 'ok', NULL),
 (114, 15, 2, 'problem', 'eweew'),
 (115, 15, 3, 'attention', NULL),
@@ -180,15 +137,7 @@ INSERT INTO `checklist_answers` (`id`, `checklist_id`, `item_id`, `status`, `not
 (125, 16, 5, 'ok', NULL),
 (126, 16, 6, 'ok', NULL),
 (127, 16, 7, 'attention', NULL),
-(128, 16, 8, 'problem', 'wewewe'),
-(129, 17, 1, 'ok', NULL),
-(130, 17, 2, 'problem', 'eweew'),
-(131, 17, 3, 'attention', NULL),
-(132, 17, 4, 'ok', NULL),
-(133, 17, 5, 'ok', NULL),
-(134, 17, 6, 'ok', NULL),
-(135, 17, 7, 'attention', NULL),
-(136, 17, 8, 'problem', 'wewewe');
+(128, 16, 8, 'problem', 'wewewe');
 
 -- --------------------------------------------------------
 
@@ -258,9 +207,14 @@ CREATE TABLE `fuelings` (
 --
 
 INSERT INTO `fuelings` (`id`, `run_id`, `user_id`, `vehicle_id`, `secretariat_id`, `gas_station_id`, `gas_station_name`, `km`, `liters`, `fuel_type_id`, `total_value`, `invoice_path`, `is_manual`, `created_at`) VALUES
-(5, 6, 2, 2, NULL, 2, NULL, 143, 34.00, 3, 137.70, 'uploads/invoices/invoice_68af36b6d762e7.47968285.png', 0, '2025-08-27 16:47:50'),
-(6, 6, 2, 2, NULL, NULL, 'weweew', 1234, 12.00, 2, 1400.00, 'uploads/invoices/invoice_68af36cc8dca08.64027085.png', 1, '2025-08-27 16:48:12'),
-(79, 52, 2, 2, 4, 3, NULL, 108, 15.00, 4, 91.50, 'uploads/invoices/invoice_68af6658b96c95.91108723.jpeg', 0, '2025-08-27 20:11:04');
+(80, 102, 2, 1, 4, NULL, 'Posto Central', 15950, 40.00, 1, 228.00, NULL, 0, '2025-06-10 15:40:00'),
+(81, 103, 2, 2, 4, NULL, 'Posto Avenida', 23220, 35.50, 2, 175.72, NULL, 0, '2025-06-15 20:20:00'),
+(82, 104, 2, 1, 4, NULL, 'Posto Central', 16185, 38.20, 1, 217.74, NULL, 0, '2025-07-01 16:10:00'),
+(83, 105, 2, 3, 4, NULL, 'Posto Trevo', 46650, 45.00, 1, 256.50, NULL, 0, '2025-07-12 19:15:00'),
+(84, 106, 2, 2, 4, NULL, 'Posto Avenida', 23610, 33.00, 2, 163.35, NULL, 0, '2025-07-25 16:00:00'),
+(85, 107, 2, 4, 4, NULL, 'Posto Diesel Forte', 68050, 55.00, 3, 335.50, NULL, 0, '2025-08-05 17:10:00'),
+(86, 108, 2, 1, 4, NULL, 'Posto Central', 16390, 25.00, 1, 142.50, NULL, 0, '2025-08-18 21:45:00'),
+(87, 109, 2, 5, 4, NULL, 'Posto Diesel Forte', 9350, 48.80, 3, 297.68, NULL, 0, '2025-08-27 21:00:00');
 
 -- --------------------------------------------------------
 
@@ -379,14 +333,16 @@ CREATE TABLE `runs` (
 --
 
 INSERT INTO `runs` (`id`, `vehicle_id`, `driver_id`, `secretariat_id`, `start_km`, `end_km`, `start_time`, `end_time`, `destination`, `stop_point`, `status`) VALUES
-(1, 2, 2, NULL, 100, 101, '2025-08-27 10:25:57', '2025-08-27 10:43:34', 'ALEXANDRE TESTE sdjidijisdjsdijisdjsdjidsjisdjsdjijsdijsdjisdjisdjisdjidsjidsjijdsijisdj nsdjsdjsd sdjjsdjds', 'teste', 'completed'),
-(2, 2, 2, NULL, 101, 103, '2025-08-27 10:45:18', '2025-08-27 10:46:35', 'teste 3', 'teste2', 'completed'),
-(3, 2, 2, NULL, 103, 104, '2025-08-27 10:47:29', '2025-08-27 10:50:16', 'tesr3', 'eeee', 'completed'),
-(5, 2, 2, NULL, 104, 108, '2025-08-27 11:17:28', '2025-08-27 11:17:39', '106', 'Teste', 'completed'),
-(6, 2, 2, NULL, 108, 109, '2025-08-27 11:43:25', '2025-08-27 13:05:31', 'teste', 'teste444', 'completed'),
 (50, 2, 3, NULL, 109, 109, '2025-08-27 15:35:27', '2025-08-27 15:35:42', 'teste', 'teste', 'completed'),
 (51, 2, 3, NULL, 109, 109, '2025-08-27 15:39:14', '2025-08-27 15:42:18', 'teste', 'teste', 'completed'),
-(52, 2, 2, 4, 109, 110, '2025-08-27 16:06:32', '2025-08-27 16:11:12', 'teste', 'teste', 'completed');
+(102, 1, 2, 4, 15800, 15950, '2025-06-10 09:00:00', '2025-06-10 11:30:00', 'Prefeitura Municipal', 'Protocolo de Ofícios', 'completed'),
+(103, 2, 2, 4, 23100, 23220, '2025-06-15 14:00:00', '2025-06-15 16:10:00', 'Secretaria de Obras', 'Vistoria de Equipamentos', 'completed'),
+(104, 1, 2, 4, 16100, 16185, '2025-07-01 08:30:00', '2025-07-01 12:00:00', 'Hospital Central', 'Entrega de Suprimentos', 'completed'),
+(105, 3, 2, 4, 46500, 46650, '2025-07-12 13:30:00', '2025-07-12 15:00:00', 'Centro Comunitário', 'Reunião com lideranças', 'completed'),
+(106, 2, 2, 4, 23500, 23610, '2025-07-25 10:00:00', '2025-07-25 11:45:00', 'Almoxarifado', 'Retirada de material', 'completed'),
+(107, 4, 2, 4, 67800, 68050, '2025-08-05 09:15:00', '2025-08-05 13:00:00', 'Inspeção Zona Rural', 'Levantamento de demandas', 'completed'),
+(108, 1, 2, 4, 16300, 16390, '2025-08-18 15:00:00', '2025-08-18 17:30:00', 'Garagem Municipal', 'Manutenção preventiva', 'completed'),
+(109, 5, 2, 4, 9200, 9350, '2025-08-27 14:20:00', '2025-08-27 16:50:00', 'Defesa Civil', 'Transporte de doações', 'completed');
 
 -- --------------------------------------------------------
 
@@ -441,8 +397,8 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `name`, `cpf`, `email`, `password`, `role_id`, `secretariat_id`, `department_id`, `cnh_number`, `cnh_expiry_date`, `profile_photo_path`, `phone`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'Admin Geral', '11122233344', 'admin@frotas.gov', '$2y$10$WknxPAb.e./JpX8Idgs6SemVv.7g75Lz29kE7J1wJ5VvshXn5B.eK', 1, 1, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-26 20:02:32', '2025-08-26 20:02:32'),
-(2, 'ALEXANDRE ZANATA', '12345678911', 'admin@example.com', '$2y$10$TLVbMeZPafx1qLYqCWGqcOtAhw2NrYfczQcCG5hK872ARZlgEqY1y', 2, 4, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-26 20:29:49', '2025-08-27 20:13:26'),
-(3, 'Luis Ignacio Lula Zanata', '13131313131', 'L@13.com', '$2y$10$9rwKvc5vHXOxvQhBuRkIuehYRgzMgS0beGuy7y9HoknOCZDmTUiqW', 4, 4, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-27 19:34:17', '2025-08-27 19:34:41');
+(2, 'ALEXANDRE ZANATA', '12345678911', 'admin@example.com', '$2y$10$TLVbMeZPafx1qLYqCWGqcOtAhw2NrYfczQcCG5hK872ARZlgEqY1y', 2, 4, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-26 20:29:49', '2025-08-27 20:53:28'),
+(3, 'Luis Ignacio Lula Zanata', '13131313131', 'L@13.com', '$2y$10$9rwKvc5vHXOxvQhBuRkIuehYRgzMgS0beGuy7y9HoknOCZDmTUiqW', 4, 4, NULL, NULL, NULL, NULL, NULL, 'active', '2025-08-27 19:34:17', '2025-08-27 20:58:28');
 
 -- --------------------------------------------------------
 
@@ -614,7 +570,7 @@ ALTER TABLE `audit_logs`
 -- AUTO_INCREMENT for table `auth_tokens`
 --
 ALTER TABLE `auth_tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
 -- AUTO_INCREMENT for table `checklists`
@@ -644,7 +600,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `fuelings`
 --
 ALTER TABLE `fuelings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=80;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=88;
 
 --
 -- AUTO_INCREMENT for table `fuel_types`
@@ -674,7 +630,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `runs`
 --
 ALTER TABLE `runs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=110;
 
 --
 -- AUTO_INCREMENT for table `secretariats`
