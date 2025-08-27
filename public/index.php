@@ -6,6 +6,7 @@ session_start();
 define('SYSTEM_LOADED', true);
 
 // Carrega configurações
+require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/config.php';
 
@@ -51,7 +52,7 @@ $router->get('runs/finish', 'DiarioBordoController@finish'); // Página 4: Final
 $router->post('runs/finish/store', 'DiarioBordoController@storeFinish'); // Finaliza a corrida
 
 $router->get('runs/history', 'DiarioBordoController@history'); // Histórico de Corridas
-$router->post('runs/reports/generate', 'DiarioBordoController@generatePdfReport'); // Gerar PDF
+$router->get('runs/reports/generate', 'DiarioBordoController@generatePdfReport');// Gerar PDF
 
 $router->post('runs/ajax-get-vehicle', 'DiarioBordoController@ajax_get_vehicle');
 $router->post('runs/select-vehicle', 'DiarioBordoController@selectVehicle'); 

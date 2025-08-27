@@ -6,6 +6,7 @@ if (!defined('SYSTEM_LOADED')) {
 
 require_once __DIR__ . '/../security/Auth.php';
 require_once __DIR__ . '/../core/Database.php';
+require_once __DIR__ . '/../core/ReportCalculations.php';
 
 class DiarioBordoController
 {
@@ -25,8 +26,9 @@ class DiarioBordoController
     
     public function create()
     {
+        // --- LÓGICA DE VERIFICAÇÃO MELHORADA ---
         $stmt = $this->conn->prepare(
-            "SELECT id, start_km FROM runs 
+            "SELECT id, start_km, vehicle_id FROM runs 
              WHERE driver_id = :driver_id AND status = 'in_progress' 
              ORDER BY id DESC LIMIT 1"
         );
@@ -34,15 +36,22 @@ class DiarioBordoController
         $activeRun = $stmt->fetch();
 
         if ($activeRun) {
+            // Se já existe uma corrida, define as sessões e redireciona para a etapa correta
+            $_SESSION['run_id'] = $activeRun['id'];
+            $_SESSION['run_vehicle_id'] = $activeRun['vehicle_id'];
+
             if ($activeRun['start_km'] === null) {
+                // Se o KM inicial não foi definido, vai para a página de início
                 header('Location: ' . BASE_URL . '/runs/start');
                 exit();
             } else {
+                // Se o KM já foi definido, a corrida está em andamento, vai para a página de finalização
                 header('Location: ' . BASE_URL . '/runs/finish');
                 exit();
             }
         }
 
+        // Se não há corrida ativa, limpa sessões antigas e exibe a página de seleção de veículo
         unset($_SESSION['run_vehicle_id']);
         unset($_SESSION['run_id']);
         
@@ -94,6 +103,18 @@ class DiarioBordoController
 
     public function checklist()
     {
+        // --- LÓGICA DE VERIFICAÇÃO ADICIONADA ---
+        // Garante que o usuário não acesse o checklist se já tiver uma corrida iniciada
+        $stmt_check = $this->conn->prepare(
+            "SELECT id FROM runs WHERE driver_id = :driver_id AND status = 'in_progress' LIMIT 1"
+        );
+        $stmt_check->execute(['driver_id' => $this->user['id']]);
+        if ($stmt_check->fetch()) {
+            // Se encontrou uma corrida, o método create() vai lidar com o redirecionamento correto
+            header('Location: ' . BASE_URL . '/runs/new');
+            exit();
+        }
+        
         if (empty($_SESSION['run_vehicle_id'])) {
             header('Location: ' . BASE_URL . '/runs/new');
             exit();
@@ -126,6 +147,18 @@ class DiarioBordoController
     {
         if (empty($_SESSION['run_vehicle_id']) || empty($_POST['items'])) {
             show_error_page('Erro', 'Sessão inválida ou dados do checklist não enviados.');
+        }
+
+        // --- LÓGICA DE VERIFICAÇÃO ADICIONADA ---
+        // Validação crucial para não inserir uma corrida duplicada no banco de dados
+        $stmt_check = $this->conn->prepare(
+            "SELECT id FROM runs WHERE driver_id = :driver_id AND status = 'in_progress' LIMIT 1"
+        );
+        $stmt_check->execute(['driver_id' => $this->user['id']]);
+        if ($stmt_check->fetch()) {
+            // Redireciona para o início da corrida que já existe
+            header('Location: ' . BASE_URL . '/runs/start');
+            exit();
         }
 
         $vehicle_id = $_SESSION['run_vehicle_id'];
@@ -189,6 +222,8 @@ class DiarioBordoController
         }
     }
     
+    // O restante dos métodos (start, storeStart, finish, etc.) permanece o mesmo...
+
     public function start()
     {
         if (empty($_SESSION['run_id']) || empty($_SESSION['run_vehicle_id'])) {
@@ -437,6 +472,283 @@ class DiarioBordoController
         }
     }
     
-    public function history() { echo "Histórico de corridas será implementado aqui."; }
-    public function generatePdfReport() { echo "Geração de relatório em PDF será implementada aqui."; }
+    public function history()
+    {
+        // Define as datas do filtro: pega da URL ou usa o mês atual como padrão
+        $start_date = $_GET['start_date'] ?? date('Y-m-01');
+        $end_date = $_GET['end_date'] ?? date('Y-m-t');
+
+        // Garante que a data final inclua o dia inteiro
+        $end_date_sql = $end_date . ' 23:59:59';
+
+        // SQL para buscar as corridas com base no filtro de data
+        $stmt = $this->conn->prepare(
+            "SELECT 
+                r.id, r.start_time, r.destination, r.start_km, r.end_km,
+                v.name as vehicle_name, v.prefix as vehicle_prefix
+             FROM runs r
+             JOIN vehicles v ON r.vehicle_id = v.id
+             WHERE r.driver_id = :driver_id 
+               AND r.status = 'completed'
+               AND r.start_time BETWEEN :start_date AND :end_date
+             ORDER BY r.start_time DESC"
+        );
+        $stmt->execute([
+            'driver_id' => $this->user['id'],
+            'start_date' => $start_date,
+            'end_date' => $end_date_sql
+        ]);
+        $runs = $stmt->fetchAll();
+
+        // Carrega a view e passa os dados para ela
+        require_once __DIR__ . '/../../templates/pages/diario_bordo/historico.php';
+    }
+
+
+public function generatePdfReport()
+    {
+        // --- CAPTURA E PREPARAÇÃO DOS DADOS ---
+        $start_date = $_GET['start_date'] ?? date('Y-m-01');
+        $end_date = $_GET['end_date'] ?? date('Y-m-t');
+        $end_date_sql = $end_date . ' 23:59:59';
+        $periodo_formatado = date('d/m/Y', strtotime($start_date)) . ' a ' . date('d/m/Y', strtotime($end_date));
+
+        // Busca informações da secretaria do usuário
+        $stmt_user_info = $this->conn->prepare("SELECT s.name FROM secretariats s JOIN users u ON s.id = u.secretariat_id WHERE u.id = :user_id");
+        $stmt_user_info->execute(['user_id' => $this->user['id']]);
+        $secretaria_info = $stmt_user_info->fetch();
+        $secretaria_usuario = $secretaria_info ? $secretaria_info['name'] : 'Secretaria não informada';
+
+        // Busca as corridas (viagens)
+        $stmt_runs = $this->conn->prepare(
+            "SELECT r.*, v.name as vehicle_name, v.prefix as vehicle_prefix
+             FROM runs r
+             JOIN vehicles v ON r.vehicle_id = v.id
+             WHERE r.driver_id = :driver_id 
+               AND r.status = 'completed'
+               AND r.start_time BETWEEN :start_date AND :end_date
+             ORDER BY r.start_time ASC"
+        );
+        $stmt_runs->execute(['driver_id' => $this->user['id'], 'start_date' => $start_date, 'end_date' => $end_date_sql]);
+        $runs = $stmt_runs->fetchAll();
+
+        // Busca os abastecimentos
+        $stmt_fuelings = $this->conn->prepare(
+            "SELECT f.*, ft.name as fuel_type_name, gs.name as station_name
+             FROM fuelings f
+             LEFT JOIN fuel_types ft ON f.fuel_type_id = ft.id
+             LEFT JOIN gas_stations gs ON f.gas_station_id = gs.id
+             WHERE f.user_id = :user_id 
+               AND f.created_at BETWEEN :start_date AND :end_date
+             ORDER BY f.created_at ASC"
+        );
+        $stmt_fuelings->execute(['user_id' => $this->user['id'], 'start_date' => $start_date, 'end_date' => $end_date_sql]);
+        $fuelings = $stmt_fuelings->fetchAll();
+
+        // --- CÁLCULOS TOTAIS ---
+        $summary = ReportCalculations::calculateSummary($runs, $fuelings);
+
+        // --- CLASSE PERSONALIZADA PARA O PDF ---
+        $pdf = new class('L', 'mm', 'A4', true, 'UTF-8', false) extends TCPDF {
+            private $periodo;
+            private $usuario;
+            private $secretaria;
+            private $logoPath = __DIR__ . '/../../public/assets/img/logo.png';
+
+            public function setReportData($periodo, $usuario, $secretaria) {
+                $this->periodo = $periodo;
+                $this->usuario = $usuario;
+                $this->secretaria = $secretaria;
+            }
+
+            public function Header() {
+                if (file_exists($this->logoPath)) {
+                    $this->Image($this->logoPath, 10, 10, 30, '', 'PNG');
+                }
+                $this->SetFont('helvetica', 'B', 14);
+                $this->SetXY(12, 9);
+                $this->Cell(0, 8, 'DIÁRIO DE BORDO ELETRÔNICO', 0, 1, 'C');
+                $this->SetXY(12, 22);
+                $this->SetFont('helvetica', '', 12);
+                $this->Cell(0, 8, $this->secretaria, 0, 1, 'C');
+                $this->SetFont('helvetica', 'B', 10);
+                $this->SetXY(210, 9);
+                $this->Cell(0, 5, 'Período: ' . $this->periodo, 0, 1, 'R');
+                $this->SetXY(12, 16);
+                $this->SetFont('helvetica', 'B', 12);
+                $this->Cell(0, 8, 'Usuário: ' . $this->usuario, 0, 1, 'C');
+                $this->Line(10, 30, $this->getPageWidth() - 10, 30);
+            }
+
+            public function Footer() {
+                $this->SetY(-15);
+                $this->SetFont('helvetica', 'I', 8);
+                $this->Line(10, $this->GetY() - 2, $this->getPageWidth() - 10, $this->GetY() - 2);
+                $this->Cell(0, 10, 'Este relatório diário de bordo pessoal apresenta o registro detalhado das corridas e abastecimentos realizados no período.', 0, false, 'L');
+            }
+
+            public function drawStatCard($x, $y, $w, $h, $title, $value) {
+                $this->SetFillColor(240, 242, 245);
+                $this->SetLineStyle(['width' => 0.2, 'color' => [200, 200, 200]]);
+                $this->RoundedRect($x, $y, $w, $h, 3.5, '1111', 'DF');
+                $this->SetFont('helvetica', '', 9);
+                $this->SetTextColor(100, 100, 100);
+                $this->SetXY($x + 5, $y + 4);
+                $this->Cell($w - 10, 5, $title, 0, 0, 'L');
+                $this->SetFont('helvetica', 'B', 14);
+                $this->SetTextColor(50, 50, 50);
+                $this->SetXY($x + 5, $y + 10);
+                $this->Cell($w - 10, 8, $value, 0, 0, 'L');
+            }
+
+            // --- NOVA FUNÇÃO PARA DESENHAR LINHAS DINÂMICAS ---
+            public function drawDynamicRow($data, $widths, $aligns) {
+                // 1. Calcular a altura máxima da linha
+                $maxLines = 0;
+                foreach ($data as $i => $txt) {
+                    // getNumLines() calcula quantas linhas o texto usará em uma célula de determinada largura
+                    $lines = $this->getNumLines($txt, $widths[$i]);
+                    if ($lines > $maxLines) {
+                        $maxLines = $lines;
+                    }
+                }
+                // Altura da linha = número de linhas * altura base de uma linha (ex: 5mm)
+                $rowHeight = $maxLines * 5; 
+
+                // 2. Verificar se a linha cabe na página atual, se não, adiciona nova página
+                $this->CheckPageBreak($rowHeight);
+
+                // 3. Desenhar cada célula da linha usando MultiCell
+                $current_x = $this->GetX();
+                foreach ($data as $i => $txt) {
+                    // Usamos MultiCell para desenhar. A mágica é o último parâmetro (0), que impede
+                    // o cursor de pular para a próxima linha automaticamente.
+                    $this->MultiCell($widths[$i], $rowHeight, $txt, 1, $aligns[$i], false, 0, '', '', true, 0, false, true, $rowHeight, 'M');
+                }
+                // Pula para a próxima linha no PDF
+                $this->Ln($rowHeight);
+            }
+        };
+
+        // --- INICIALIZAÇÃO E GERAÇÃO DO PDF ---
+        $pdf->setReportData($periodo_formatado, $this->user['name'], $secretaria_usuario);
+        $pdf->SetCreator('Frotas Gov');
+        $pdf->SetAuthor($this->user['name']);
+        $pdf->SetTitle('Relatório Individual - ' . $this->user['name']);
+        $pdf->SetMargins(10, 35, 10);
+        $pdf->SetAutoPageBreak(TRUE, 25);
+        $pdf->AddPage();
+
+        // --- CONTEÚDO DO RELATÓRIO ---
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 8, 'Resumo do Período', 0, 1, 'L');
+        $pdf->Ln(1);
+
+        $tableWidth = 277;
+        $card_spacing = 5;
+        $num_cards = 3;
+        $card_width = ($tableWidth - ($card_spacing * ($num_cards - 1))) / $num_cards;
+        $card_height = 22;
+        $card_y = $pdf->GetY();
+        $card_x = 10;
+        $pdf->drawStatCard($card_x, $card_y, $card_width, $card_height, 'Total de KM Rodados', number_format($summary['total_km'], 0, ',', '.') . ' km');
+        $card_x += $card_width + $card_spacing;
+        $pdf->drawStatCard($card_x, $card_y, $card_width, $card_height, 'Total de Litros', number_format($summary['total_litros'], 2, ',', '.') . ' L');
+        $card_x += $card_width + $card_spacing;
+        $pdf->drawStatCard($card_x, $card_y, $card_width, $card_height, 'Consumo Médio', $summary['consumo_medio']);
+        $pdf->Ln($card_height - 2);
+
+        // Tabela de Viagens
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 8, 'Registros de Viagens (' . count($runs) . ')', 0, 1, 'L');
+        $pdf->Ln(1);
+
+        $headers = ['Veículo', 'Saída', 'Retorno', 'Destino', 'Ponto de Parada', 'KM Inicial', 'KM Final', 'Total KM'];
+        $widths = [45, 35, 35, 53, 40, 27, 27, 15];
+        $aligns = ['L', 'C', 'C', 'L', 'L', 'C', 'C', 'C']; // Alinhamento para cada coluna
+
+        $pdf->SetFont('helvetica', 'B', 8);
+        $pdf->SetFillColor(220, 223, 228);
+        for ($i = 0; $i < count($headers); $i++) {
+            $pdf->Cell($widths[$i], 7, $headers[$i], 1, 0, 'C', 1);
+        }
+        $pdf->Ln();
+        
+        $pdf->SetFont('helvetica', '', 8);
+        foreach($runs as $row) {
+            $km_viagem = $row['end_km'] - $row['start_km'];
+            $saida_formatada = date('Y/d/m - H:i:s', strtotime($row['start_time']));
+            $retorno_formatado = $row['end_time'] ? date('Y/d/m - H:i:s', strtotime($row['end_time'])) : 'N/A';
+
+            // Prepara os dados da linha
+            $rowData = [
+                $row['vehicle_name'],
+                $saida_formatada,
+                $retorno_formatado,
+                $row['destination'],
+                $row['stop_point'],
+                $row['start_km'],
+                $row['end_km'],
+                number_format($km_viagem, 0, ',', '.')
+            ];
+
+            // --- USA A NOVA FUNÇÃO PARA DESENHAR A LINHA ---
+            $pdf->drawDynamicRow($rowData, $widths, $aligns);
+        }
+
+        $pdf->SetFont('helvetica', 'B', 8);
+        $pdf->Cell(array_sum(array_slice($widths, 0, 7)), 7, '  TOTAL DE QUILÔMETROS RODADOS NO PERÍODO', 1, 0, 'C', 1);
+        $pdf->Cell($widths[7], 7, number_format($summary['total_km'], 0, ',', '.') . ' km', 1, 1, 'C', 1);
+
+        $pdf->Ln(8);
+        
+        $alturaMinimaParaTabela = 30; 
+        $espacoRestante = $pdf->getPageHeight() - $pdf->getY() - $pdf->getBreakMargin();
+        if ($espacoRestante < $alturaMinimaParaTabela) {
+            $pdf->AddPage();
+        }
+
+        // Tabela de Abastecimentos
+        $pdf->SetFont('helvetica', 'B', 12);
+        $pdf->Cell(0, 8, 'Registros de Abastecimentos (' . count($fuelings) . ')', 0, 1, 'L');
+        $pdf->Ln(1);
+
+        $headers_fuel = ['Data', 'Posto', 'Combustível', 'KM no Abast.', 'Litros', 'Valor (R$)'];
+        $widths_fuel = [35, 85, 35, 45, 30, 47];
+        $aligns_fuel = ['C', 'L', 'L', 'C', 'C', 'C']; // Alinhamento para a tabela de abastecimento
+        
+        $pdf->SetFont('helvetica', 'B', 8);
+        for ($i = 0; $i < count($headers_fuel); $i++) {
+            $pdf->Cell($widths_fuel[$i], 7, $headers_fuel[$i], 1, 0, 'C', 1);
+        }
+        $pdf->Ln();
+
+        $pdf->SetFont('helvetica', '', 8);
+        foreach($fuelings as $row) {
+            $posto = $row['is_manual'] ? $row['gas_station_name'] : $row['station_name'];
+            $data_abastecimento_formatada = date('Y/d/m - H:i:s', strtotime($row['created_at']));
+            
+            $fuelData = [
+                $data_abastecimento_formatada,
+                $posto,
+                $row['fuel_type_name'],
+                number_format($row['km'], 0, ',', '.') . ' km',
+                number_format($row['liters'], 2, ',', '.') . ' L',
+                'R$ ' . number_format($row['total_value'], 2, ',', '.')
+            ];
+            
+            // --- USA A NOVA FUNÇÃO TAMBÉM AQUI ---
+            $pdf->drawDynamicRow($fuelData, $widths_fuel, $aligns_fuel);
+        }
+
+        $pdf->SetFont('helvetica', 'B', 8);
+        $pdf->Cell(array_sum(array_slice($widths_fuel, 0, 4)), 7, '  TOTAIS', 1, 0, 'C', 1);
+        $pdf->Cell($widths_fuel[4], 7, number_format($summary['total_litros'], 2, ',', '.') . ' L', 1, 0, 'C', 1);
+        $pdf->Cell($widths_fuel[5], 7, 'R$ ' . number_format($summary['total_valor'], 2, ',', '.'), 1, 1, 'C', 1);
+
+        // Saída do PDF
+        $filename = 'Relatorio_Individual_' . str_replace(' ', '_', $this->user['name']) . '_' . date('Y-m-d') . '.pdf';
+        $pdf->Output($filename, 'I');
+        exit();
+    }
 }

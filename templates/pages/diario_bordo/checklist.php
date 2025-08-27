@@ -38,7 +38,7 @@
                         </div>
                         <div class="problem-details">
                             <label for="notes_<?php echo $item['id']; ?>">Descreva o problema:</label>
-                            <textarea id="notes_<?php echo $item['id']; ?>" name="items[<?php echo $item['id']; ?>][notes]"></textarea>
+                            <textarea id="notes_<?php echo $item['id']; ?>" name="items[<?php echo $item['id']; ?>][notes]"><?php echo htmlspecialchars($item['last_notes']); ?></textarea>
                         </div>
                     </div>
                 <?php endforeach; ?>

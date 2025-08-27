@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 27, 2025 at 07:12 PM
+-- Generation Time: Aug 27, 2025 at 09:24 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -95,8 +95,7 @@ INSERT INTO `checklists` (`id`, `run_id`, `user_id`, `vehicle_id`, `created_at`)
 (2, 2, 2, 2, '2025-08-27 14:45:18'),
 (3, 3, 2, 2, '2025-08-27 14:47:29'),
 (5, 5, 2, 2, '2025-08-27 15:17:28'),
-(6, 6, 2, 2, '2025-08-27 15:43:25'),
-(7, 7, 2, 2, '2025-08-27 17:06:32');
+(6, 6, 2, 2, '2025-08-27 15:43:25');
 
 -- --------------------------------------------------------
 
@@ -156,15 +155,7 @@ INSERT INTO `checklist_answers` (`id`, `checklist_id`, `item_id`, `status`, `not
 (45, 6, 5, 'ok', NULL),
 (46, 6, 6, 'ok', NULL),
 (47, 6, 7, 'attention', NULL),
-(48, 6, 8, 'problem', 'wewewe'),
-(49, 7, 1, 'ok', NULL),
-(50, 7, 2, 'attention', NULL),
-(51, 7, 3, 'attention', NULL),
-(52, 7, 4, 'ok', NULL),
-(53, 7, 5, 'ok', NULL),
-(54, 7, 6, 'ok', NULL),
-(55, 7, 7, 'attention', NULL),
-(56, 7, 8, 'attention', NULL);
+(48, 6, 8, 'problem', 'wewewe');
 
 -- --------------------------------------------------------
 
@@ -352,12 +343,11 @@ CREATE TABLE `runs` (
 --
 
 INSERT INTO `runs` (`id`, `vehicle_id`, `driver_id`, `start_km`, `end_km`, `start_time`, `end_time`, `destination`, `stop_point`, `status`) VALUES
-(1, 2, 2, 100, 101, '2025-08-27 10:25:57', '2025-08-27 10:43:34', 'ALEXANDRE TESTE', 'teste', 'completed'),
+(1, 2, 2, 100, 101, '2025-08-27 10:25:57', '2025-08-27 10:43:34', 'ALEXANDRE TESTE sdjidijisdjsdijisdjsdjidsjisdjsdjijsdijsdjisdjisdjisdjidsjidsjijdsijisdj nsdjsdjsd sdjjsdjds', 'teste', 'completed'),
 (2, 2, 2, 101, 103, '2025-08-27 10:45:18', '2025-08-27 10:46:35', 'teste 3', 'teste2', 'completed'),
 (3, 2, 2, 103, 104, '2025-08-27 10:47:29', '2025-08-27 10:50:16', 'tesr3', 'eeee', 'completed'),
 (5, 2, 2, 104, 108, '2025-08-27 11:17:28', '2025-08-27 11:17:39', '106', 'Teste', 'completed'),
-(6, 2, 2, 108, 109, '2025-08-27 11:43:25', '2025-08-27 13:05:31', 'teste', 'teste444', 'completed'),
-(7, 2, 2, 109, 110, '2025-08-27 13:06:32', '2025-08-27 13:07:29', 'prefaitura 1', 'prefeitura 3', 'completed');
+(6, 2, 2, 108, 109, '2025-08-27 11:43:25', '2025-08-27 13:05:31', 'teste', 'teste444', 'completed');
 
 -- --------------------------------------------------------
 
@@ -439,8 +429,8 @@ CREATE TABLE `vehicles` (
 
 INSERT INTO `vehicles` (`id`, `name`, `plate`, `prefix`, `current_secretariat_id`, `fuel_tank_capacity_liters`, `avg_km_per_liter`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'FIAT/STRADA FREEDOM CD', 'RGH7B21', 'V-10', 1, 55.00, 12.50, 'available', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
-(2, 'VW/GOL 1.6', 'PMJ5890', 'A-11', 4, 55.00, 11.20, 'available', '2025-08-27 13:55:47', '2025-08-27 17:07:29'),
-(3, 'TOYOTA/HILUX SRV 4X4', 'SAD2A33', 'A-110', 4, 80.00, 9.80, 'maintenance', '2025-08-27 13:55:47', '2025-08-27 13:59:07'),
+(2, 'VW/GOL 1.6', 'PMJ5890', 'A-11', 4, 55.00, 11.20, 'available', '2025-08-27 13:55:47', '2025-08-27 18:47:02'),
+(3, 'TOYOTA/HILUX SRV 4X4', 'SAD2A33', 'A-110', 4, 80.00, 9.80, 'in_use', '2025-08-27 13:55:47', '2025-08-27 17:19:20'),
 (4, 'CHEVROLET/ONIX 1.0', 'QWE4R56', 'SEC-042', 3, 44.00, 14.10, 'available', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
 (5, 'FORD/RANGER XLS CD', 'JKL9M87', 'VTR-008', 4, 80.00, 10.50, 'blocked', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
 (6, 'RENAULT/SANDERO ZEN', 'XYZ1A23', 'ADM-021', 2, 50.00, 13.50, 'available', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
@@ -588,13 +578,13 @@ ALTER TABLE `auth_tokens`
 -- AUTO_INCREMENT for table `checklists`
 --
 ALTER TABLE `checklists`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `checklist_answers`
 --
 ALTER TABLE `checklist_answers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=113;
 
 --
 -- AUTO_INCREMENT for table `checklist_items`
@@ -612,7 +602,7 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `fuelings`
 --
 ALTER TABLE `fuelings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
 
 --
 -- AUTO_INCREMENT for table `fuel_types`
@@ -642,7 +632,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `runs`
 --
 ALTER TABLE `runs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT for table `secretariats`

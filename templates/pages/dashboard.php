@@ -18,7 +18,7 @@
             <ul>
                 <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Painel</a></li>
                 <li><a href="<?php echo BASE_URL; ?>/runs/new"><i class="fas fa-book"></i> Diário de Bordo</a></li>
-                <li><a href="#"><i class="fas fa-road"></i> Minhas Corridas</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/runs/history"><i class="fas fa-road"></i> Minhas Corridas</a></li>
                 <li><a href="#"><i class="fas fa-car"></i> Veículos</a></li>
                 <?php if (isset($_SESSION['user_role_id']) && $_SESSION['user_role_id'] == 1): ?>
                     <li>
@@ -51,8 +51,9 @@
                 <p>Nenhum veículo em uso no momento.</p>
             </div>
             <div class="desktop-card">
-                <h3>Última Corrida</h3>
-                <p>Secretaria de Saúde - 26/08/2025</p>
+                <h3>Minhas Corridas</h3>
+                <p>Veja seu histórico completo.</p>
+                <a href="<?php echo BASE_URL; ?>/runs/history" style="font-weight: bold; color: var(--primary-color);">Ver Histórico</a>
             </div>
             <div class="desktop-card">
                 <h3>Notificações</h3>
@@ -69,10 +70,10 @@
                 <h3>Veículo Atual</h3>
                 <p>Nenhum veículo em uso no momento.</p>
             </button>
-            <button class="mobile-button">
-                <h3>Última Corrida</h3>
-                <p>Secretaria de Saúde - 26/08/2025</p>
-            </button>
+            <a href="<?php echo BASE_URL; ?>/runs/history" class="mobile-button" style="text-decoration: none;">
+                <h3><i class="fas fa-road"></i> Minhas Corridas</h3>
+                <p>Acesse seu histórico de viagens.</p>
+            </a>
             <button class="mobile-button">
                 <h3>Notificações</h3>
                 <p>Nenhuma nova notificação.</p>
