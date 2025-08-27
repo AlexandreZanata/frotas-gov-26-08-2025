@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Aug 27, 2025 at 03:46 PM
+-- Generation Time: Aug 27, 2025 at 07:12 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -68,7 +68,9 @@ INSERT INTO `auth_tokens` (`id`, `selector`, `hashed_validator`, `user_id`, `exp
 (8, 'b93501e3e9449970f84e6350ef873d9b', '134d05fa043340841870e862f234940de12e614894fcc9bf2669f1a42ed53927', 2, '2025-09-26 13:38:16'),
 (9, '6e186438a66d13c6dd4108f57b49434a', '4e23fa6e564b6fb960e85f104a1dfce3c103b4dcd4f031954cf629dfe71309e6', 2, '2025-09-26 15:22:04'),
 (10, '7af825d8923c94a406554a38c5a5d60d', 'e988ee111f46692a65531e825867ff015f6a8baec29e86d4c5d9f4d82469ec1c', 2, '2025-09-26 15:35:21'),
-(11, 'd116dbd16a9408ef483cdb9aa7103029', 'ee1a02676586ce02ea37bc0231cad001cfbb671f13ea4ea81b92fc1aba681c09', 2, '2025-09-26 15:35:58');
+(11, 'd116dbd16a9408ef483cdb9aa7103029', 'ee1a02676586ce02ea37bc0231cad001cfbb671f13ea4ea81b92fc1aba681c09', 2, '2025-09-26 15:35:58'),
+(12, 'eae35166de8c5c2af94a3248318728ad', 'e4911f151b06619be2424c052e27c09d5e4aaea7380e5b8396b81864aed1454c', 2, '2025-09-26 16:04:00'),
+(13, 'de609919f22ab1e48da7c82010753612', '89ab9852671c024338628eca29a709d26b8cc30613b2efee9000bd3668e0c16b', 2, '2025-09-26 17:51:04');
 
 -- --------------------------------------------------------
 
@@ -84,6 +86,18 @@ CREATE TABLE `checklists` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `checklists`
+--
+
+INSERT INTO `checklists` (`id`, `run_id`, `user_id`, `vehicle_id`, `created_at`) VALUES
+(1, 1, 2, 2, '2025-08-27 14:25:57'),
+(2, 2, 2, 2, '2025-08-27 14:45:18'),
+(3, 3, 2, 2, '2025-08-27 14:47:29'),
+(5, 5, 2, 2, '2025-08-27 15:17:28'),
+(6, 6, 2, 2, '2025-08-27 15:43:25'),
+(7, 7, 2, 2, '2025-08-27 17:06:32');
+
 -- --------------------------------------------------------
 
 --
@@ -97,6 +111,60 @@ CREATE TABLE `checklist_answers` (
   `status` enum('ok','attention','problem') NOT NULL,
   `notes` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `checklist_answers`
+--
+
+INSERT INTO `checklist_answers` (`id`, `checklist_id`, `item_id`, `status`, `notes`) VALUES
+(1, 1, 1, 'ok', NULL),
+(2, 1, 2, 'ok', NULL),
+(3, 1, 3, 'ok', NULL),
+(4, 1, 4, 'ok', NULL),
+(5, 1, 5, 'ok', NULL),
+(6, 1, 6, 'ok', NULL),
+(7, 1, 7, 'attention', NULL),
+(8, 1, 8, 'problem', 'teste erros'),
+(9, 2, 1, 'ok', NULL),
+(10, 2, 2, 'ok', NULL),
+(11, 2, 3, 'ok', NULL),
+(12, 2, 4, 'ok', NULL),
+(13, 2, 5, 'ok', NULL),
+(14, 2, 6, 'ok', NULL),
+(15, 2, 7, 'attention', NULL),
+(16, 2, 8, 'problem', 'fal o L'),
+(17, 3, 1, 'ok', NULL),
+(18, 3, 2, 'ok', NULL),
+(19, 3, 3, 'ok', NULL),
+(20, 3, 4, 'ok', NULL),
+(21, 3, 5, 'ok', NULL),
+(22, 3, 6, 'ok', NULL),
+(23, 3, 7, 'attention', NULL),
+(24, 3, 8, 'problem', 'aaaaa'),
+(33, 5, 1, 'ok', NULL),
+(34, 5, 2, 'problem', 'Hajkaka'),
+(35, 5, 3, 'attention', NULL),
+(36, 5, 4, 'ok', NULL),
+(37, 5, 5, 'ok', NULL),
+(38, 5, 6, 'ok', NULL),
+(39, 5, 7, 'attention', NULL),
+(40, 5, 8, 'problem', 'Isksks'),
+(41, 6, 1, 'ok', NULL),
+(42, 6, 2, 'problem', 'eweew'),
+(43, 6, 3, 'attention', NULL),
+(44, 6, 4, 'ok', NULL),
+(45, 6, 5, 'ok', NULL),
+(46, 6, 6, 'ok', NULL),
+(47, 6, 7, 'attention', NULL),
+(48, 6, 8, 'problem', 'wewewe'),
+(49, 7, 1, 'ok', NULL),
+(50, 7, 2, 'attention', NULL),
+(51, 7, 3, 'attention', NULL),
+(52, 7, 4, 'ok', NULL),
+(53, 7, 5, 'ok', NULL),
+(54, 7, 6, 'ok', NULL),
+(55, 7, 7, 'attention', NULL),
+(56, 7, 8, 'attention', NULL);
 
 -- --------------------------------------------------------
 
@@ -153,12 +221,42 @@ CREATE TABLE `fuelings` (
   `gas_station_name` varchar(150) DEFAULT NULL COMMENT 'Para abastecimento manual',
   `km` int(10) UNSIGNED NOT NULL,
   `liters` decimal(10,2) NOT NULL,
-  `fuel_type` varchar(50) DEFAULT NULL,
+  `fuel_type_id` int(11) DEFAULT NULL,
   `total_value` decimal(10,2) DEFAULT NULL,
   `invoice_path` varchar(255) DEFAULT NULL,
   `is_manual` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `fuelings`
+--
+
+INSERT INTO `fuelings` (`id`, `run_id`, `user_id`, `vehicle_id`, `gas_station_id`, `gas_station_name`, `km`, `liters`, `fuel_type_id`, `total_value`, `invoice_path`, `is_manual`, `created_at`) VALUES
+(5, 6, 2, 2, 2, NULL, 143, 34.00, 3, 137.70, 'uploads/invoices/invoice_68af36b6d762e7.47968285.png', 0, '2025-08-27 16:47:50'),
+(6, 6, 2, 2, NULL, 'weweew', 1234, 12.00, 2, 1400.00, 'uploads/invoices/invoice_68af36cc8dca08.64027085.png', 1, '2025-08-27 16:48:12');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fuel_types`
+--
+
+CREATE TABLE `fuel_types` (
+  `id` int(11) NOT NULL,
+  `name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `fuel_types`
+--
+
+INSERT INTO `fuel_types` (`id`, `name`) VALUES
+(4, 'Diesel Comum'),
+(5, 'Diesel S10'),
+(3, 'Etanol'),
+(2, 'Gasolina Aditivada'),
+(1, 'Gasolina Comum');
 
 -- --------------------------------------------------------
 
@@ -169,9 +267,44 @@ CREATE TABLE `fuelings` (
 CREATE TABLE `gas_stations` (
   `id` int(11) NOT NULL,
   `name` varchar(150) NOT NULL,
-  `fuel_price_per_liter` decimal(10,3) DEFAULT NULL,
   `status` enum('active','inactive') NOT NULL DEFAULT 'active'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `gas_stations`
+--
+
+INSERT INTO `gas_stations` (`id`, `name`, `status`) VALUES
+(1, 'Posto Shell Centro', 'active'),
+(2, 'Posto Ipiranga Bairro', 'active'),
+(3, 'Posto Petrobras Rodovia', 'active');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `gas_station_fuels`
+--
+
+CREATE TABLE `gas_station_fuels` (
+  `id` int(11) NOT NULL,
+  `gas_station_id` int(11) NOT NULL,
+  `fuel_type_id` int(11) NOT NULL,
+  `price` decimal(10,3) NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `gas_station_fuels`
+--
+
+INSERT INTO `gas_station_fuels` (`id`, `gas_station_id`, `fuel_type_id`, `price`, `updated_at`) VALUES
+(11, 1, 1, 5.890, '2025-08-27 16:43:06'),
+(12, 1, 3, 3.990, '2025-08-27 16:43:06'),
+(13, 1, 5, 6.200, '2025-08-27 16:43:06'),
+(14, 2, 2, 6.150, '2025-08-27 16:43:06'),
+(15, 2, 3, 4.050, '2025-08-27 16:43:06'),
+(16, 3, 1, 5.950, '2025-08-27 16:43:06'),
+(17, 3, 4, 6.100, '2025-08-27 16:43:06');
 
 -- --------------------------------------------------------
 
@@ -205,14 +338,26 @@ CREATE TABLE `runs` (
   `id` int(11) NOT NULL,
   `vehicle_id` int(11) NOT NULL,
   `driver_id` int(11) NOT NULL,
-  `start_km` int(10) UNSIGNED NOT NULL,
+  `start_km` int(10) UNSIGNED DEFAULT NULL,
   `end_km` int(10) UNSIGNED DEFAULT NULL,
   `start_time` datetime NOT NULL,
   `end_time` datetime DEFAULT NULL,
-  `destination` varchar(255) NOT NULL,
+  `destination` varchar(255) DEFAULT NULL,
   `stop_point` varchar(255) DEFAULT NULL,
   `status` enum('in_progress','completed') NOT NULL DEFAULT 'in_progress'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `runs`
+--
+
+INSERT INTO `runs` (`id`, `vehicle_id`, `driver_id`, `start_km`, `end_km`, `start_time`, `end_time`, `destination`, `stop_point`, `status`) VALUES
+(1, 2, 2, 100, 101, '2025-08-27 10:25:57', '2025-08-27 10:43:34', 'ALEXANDRE TESTE', 'teste', 'completed'),
+(2, 2, 2, 101, 103, '2025-08-27 10:45:18', '2025-08-27 10:46:35', 'teste 3', 'teste2', 'completed'),
+(3, 2, 2, 103, 104, '2025-08-27 10:47:29', '2025-08-27 10:50:16', 'tesr3', 'eeee', 'completed'),
+(5, 2, 2, 104, 108, '2025-08-27 11:17:28', '2025-08-27 11:17:39', '106', 'Teste', 'completed'),
+(6, 2, 2, 108, 109, '2025-08-27 11:43:25', '2025-08-27 13:05:31', 'teste', 'teste444', 'completed'),
+(7, 2, 2, 109, 110, '2025-08-27 13:06:32', '2025-08-27 13:07:29', 'prefaitura 1', 'prefeitura 3', 'completed');
 
 -- --------------------------------------------------------
 
@@ -289,6 +434,19 @@ CREATE TABLE `vehicles` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
+-- Dumping data for table `vehicles`
+--
+
+INSERT INTO `vehicles` (`id`, `name`, `plate`, `prefix`, `current_secretariat_id`, `fuel_tank_capacity_liters`, `avg_km_per_liter`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'FIAT/STRADA FREEDOM CD', 'RGH7B21', 'V-10', 1, 55.00, 12.50, 'available', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
+(2, 'VW/GOL 1.6', 'PMJ5890', 'A-11', 4, 55.00, 11.20, 'available', '2025-08-27 13:55:47', '2025-08-27 17:07:29'),
+(3, 'TOYOTA/HILUX SRV 4X4', 'SAD2A33', 'A-110', 4, 80.00, 9.80, 'maintenance', '2025-08-27 13:55:47', '2025-08-27 13:59:07'),
+(4, 'CHEVROLET/ONIX 1.0', 'QWE4R56', 'SEC-042', 3, 44.00, 14.10, 'available', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
+(5, 'FORD/RANGER XLS CD', 'JKL9M87', 'VTR-008', 4, 80.00, 10.50, 'blocked', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
+(6, 'RENAULT/SANDERO ZEN', 'XYZ1A23', 'ADM-021', 2, 50.00, 13.50, 'available', '2025-08-27 13:55:47', '2025-08-27 13:55:47'),
+(7, 'HYUNDAI/HB20 SENSE', 'BRA2E19', 'SEC-011', 3, 50.00, 13.00, 'in_use', '2025-08-27 13:55:47', '2025-08-27 13:55:47');
+
+--
 -- Indexes for dumped tables
 --
 
@@ -345,13 +503,29 @@ ALTER TABLE `fuelings`
   ADD KEY `run_id` (`run_id`),
   ADD KEY `user_id` (`user_id`),
   ADD KEY `vehicle_id` (`vehicle_id`),
-  ADD KEY `gas_station_id` (`gas_station_id`);
+  ADD KEY `gas_station_id` (`gas_station_id`),
+  ADD KEY `fuelings_ibfk_5` (`fuel_type_id`);
+
+--
+-- Indexes for table `fuel_types`
+--
+ALTER TABLE `fuel_types`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`);
 
 --
 -- Indexes for table `gas_stations`
 --
 ALTER TABLE `gas_stations`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `gas_station_fuels`
+--
+ALTER TABLE `gas_station_fuels`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `gas_station_id` (`gas_station_id`),
+  ADD KEY `gas_station_fuels_ibfk_2` (`fuel_type_id`);
 
 --
 -- Indexes for table `roles`
@@ -408,19 +582,19 @@ ALTER TABLE `audit_logs`
 -- AUTO_INCREMENT for table `auth_tokens`
 --
 ALTER TABLE `auth_tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `checklists`
 --
 ALTER TABLE `checklists`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `checklist_answers`
 --
 ALTER TABLE `checklist_answers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=57;
 
 --
 -- AUTO_INCREMENT for table `checklist_items`
@@ -438,13 +612,25 @@ ALTER TABLE `departments`
 -- AUTO_INCREMENT for table `fuelings`
 --
 ALTER TABLE `fuelings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `fuel_types`
+--
+ALTER TABLE `fuel_types`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `gas_stations`
 --
 ALTER TABLE `gas_stations`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `gas_station_fuels`
+--
+ALTER TABLE `gas_station_fuels`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `roles`
@@ -456,7 +642,7 @@ ALTER TABLE `roles`
 -- AUTO_INCREMENT for table `runs`
 --
 ALTER TABLE `runs`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `secretariats`
@@ -474,7 +660,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `vehicles`
 --
 ALTER TABLE `vehicles`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- Constraints for dumped tables
@@ -520,7 +706,15 @@ ALTER TABLE `fuelings`
   ADD CONSTRAINT `fuelings_ibfk_1` FOREIGN KEY (`run_id`) REFERENCES `runs` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fuelings_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `fuelings_ibfk_3` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicles` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `fuelings_ibfk_4` FOREIGN KEY (`gas_station_id`) REFERENCES `gas_stations` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `fuelings_ibfk_4` FOREIGN KEY (`gas_station_id`) REFERENCES `gas_stations` (`id`) ON DELETE SET NULL,
+  ADD CONSTRAINT `fuelings_ibfk_5` FOREIGN KEY (`fuel_type_id`) REFERENCES `fuel_types` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `gas_station_fuels`
+--
+ALTER TABLE `gas_station_fuels`
+  ADD CONSTRAINT `gas_station_fuels_ibfk_1` FOREIGN KEY (`gas_station_id`) REFERENCES `gas_stations` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `gas_station_fuels_ibfk_2` FOREIGN KEY (`fuel_type_id`) REFERENCES `fuel_types` (`id`) ON UPDATE CASCADE;
 
 --
 -- Constraints for table `runs`
