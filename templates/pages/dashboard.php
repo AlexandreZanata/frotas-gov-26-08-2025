@@ -19,13 +19,7 @@
                 <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Painel</a></li>
                 <li><a href="<?php echo BASE_URL; ?>/runs/new"><i class="fas fa-book"></i> Diário de Bordo</a></li>
                 <li><a href="<?php echo BASE_URL; ?>/runs/history"><i class="fas fa-road"></i> Minhas Corridas</a></li>
-                <?php if (isset($_SESSION['user_role_id']) && $_SESSION['user_role_id'] == 1): ?>
-                    <li>
-                        <a href="/frotas-gov/public/users/create">
-                            <i class="fas fa-user-plus"></i> Cadastrar Usuário
-                        </a>
-                    </li>
-                <?php endif; ?>
+
                 <li><a href="/frotas-gov/public/logout"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
             </ul>
         </nav>

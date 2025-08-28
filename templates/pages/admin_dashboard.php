@@ -17,7 +17,7 @@
         <nav class="sidebar-nav">
             <ul>
                 <li><a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Painel</a></li>
-                <li><a href="#"><i class="fas fa-car"></i> Veículos</a></li>
+                <li><a href="<?php echo BASE_URL; ?>/sector-manager/vehicles"><i class="fas fa-car"></i> Veículos</a></li>
                 <li><a href="#"><i class="fas fa-road"></i> Corridas</a></li>
                 <li><a href="#"><i class="fas fa-gas-pump"></i> Abastecimentos</a></li>
                 

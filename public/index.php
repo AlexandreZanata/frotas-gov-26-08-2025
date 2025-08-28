@@ -85,6 +85,16 @@ $router->post('sector-manager/users/update', 'SectorManagerController@updateUser
 $router->post('sector-manager/users/reset-password', 'SectorManagerController@resetUserPassword');
 $router->post('sector-manager/users/delete', 'SectorManagerController@deleteUser');
 
+//Gerenciamento de CARROS
+
+$router->get('sector-manager/vehicles', 'SectorManagerController@manageVehicles');
+$router->post('sector-manager/vehicles/store', 'SectorManagerController@storeVehicle');
+$router->get('sector-manager/ajax/search-vehicles', 'SectorManagerController@ajax_search_vehicles');
+$router->post('sector-manager/ajax/get-vehicle', 'SectorManagerController@ajax_get_vehicle');
+$router->post('sector-manager/vehicles/update', 'SectorManagerController@updateVehicle');
+$router->post('sector-manager/vehicles/delete', 'SectorManagerController@deleteVehicle');
+$router->get('sector-manager/vehicles/history', 'SectorManagerController@vehicleHistory');
+
 // Histórico e listagem
 $router->get('sector-manager/users', 'SectorManagerController@listUsers'); // retrocompatibilidade
 $router->get('sector-manager/users/history', 'SectorManagerController@history');

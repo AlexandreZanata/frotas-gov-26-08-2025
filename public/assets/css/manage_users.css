@@ -315,4 +315,26 @@
         white-space: pre-wrap; /* Mantém a formatação de espaço dentro do P */
         word-break: break-word; /* Quebra palavras longas */
     }
+/* Cor para Disponível (Verde) - Já deve existir, mas garantimos aqui */
+.status-badge.status-available {
+    background-color: #dcfce7; /* Fundo verde claro */
+    color: #166534; /* Texto verde escuro */
+}
 
+/* Cor para Em Uso (Vermelho) */
+.status-badge.status-in_use {
+    background-color: #fee2e2; /* Fundo vermelho claro */
+    color: #991b1b; /* Texto vermelho escuro */
+}
+
+/* Cor para Manutenção (Azul) */
+.status-badge.status-maintenance {
+    background-color: #dbeafe; /* Fundo azul claro */
+    color: #1e40af; /* Texto azul escuro */
+}
+
+/* Cor para Bloqueado (Laranja/Amarelo) */
+.status-badge.status-blocked {
+    background-color: #fef3c7; /* Fundo amarelo claro */
+    color: #92400e; /* Texto amarelo/laranja escuro */
+}

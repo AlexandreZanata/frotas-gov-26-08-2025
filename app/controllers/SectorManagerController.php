@@ -442,4 +442,380 @@ class SectorManagerController
             show_error_page('Erro de Banco de Dados', 'Não foi possível carregar o histórico.', 500);
         }
     }
+
+    /**
+     * ATUALIZADO: Exibe o formulário de cadastro e a lista de veículos com busca e paginação.
+     */
+    public function manageVehicles()
+    {
+        if (empty($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+
+        // Busca inicial de veículos
+        $data = [
+            'csrf_token' => $_SESSION['csrf_token'],
+            'initialVehicles' => $this->fetchVehiclesWithPagination() // Usa a nova função
+        ];
+
+        extract($data);
+        require_once __DIR__ . '/../../templates/pages/sector_manager/manage_vehicles.php';
+    }
+
+    /**
+     * NOVA FUNÇÃO: Busca veículos com filtro e paginação.
+     */
+    private function fetchVehiclesWithPagination($filters = [], $page = 1, $perPage = 10)
+    {
+        // 1. Busca TODOS os veículos da secretaria, sem filtro de busca no SQL.
+        $stmt = $this->conn->prepare(
+            "SELECT * FROM vehicles WHERE current_secretariat_id = :secretariat_id ORDER BY name ASC"
+        );
+        $stmt->execute([':secretariat_id' => $_SESSION['user_secretariat_id']]);
+        $allVehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $searchTerm = isset($filters['term']) ? mb_strtolower(trim($filters['term'])) : '';
+        
+        // 2. Aplica o filtro no array de veículos usando PHP (método seguro).
+        $filteredVehicles = array_filter($allVehicles, function($vehicle) use ($searchTerm) {
+            if (empty($searchTerm)) {
+                return true; // Se não há busca, retorna todos.
+            }
+
+            // Verifica se o termo de busca aparece no nome, placa ou prefixo.
+            return (
+                mb_strpos(mb_strtolower($vehicle['name']), $searchTerm) !== false ||
+                mb_strpos(mb_strtolower($vehicle['plate']), $searchTerm) !== false ||
+                mb_strpos(mb_strtolower($vehicle['prefix']), $searchTerm) !== false
+            );
+        });
+
+        // 3. Aplica a paginação no array já filtrado.
+        $totalResults = count($filteredVehicles);
+        $totalPages = ceil($totalResults / $perPage);
+        $offset = ($page - 1) * $perPage;
+        
+        $paginatedVehicles = array_slice($filteredVehicles, $offset, $perPage);
+        
+        // Gera o HTML da paginação.
+        $paginationHtml = $this->generatePaginationHtml($page, $totalPages, $totalResults);
+
+        return ['vehicles' => $paginatedVehicles, 'paginationHtml' => $paginationHtml, 'total' => $totalResults];
+    }
+
+    /**
+     * NOVA FUNÇÃO AJAX: Busca veículos dinamicamente.
+     */
+    public function ajax_search_vehicles()
+    {
+        header('Content-Type: application/json');
+        try {
+            $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
+            $filters = [
+                'term' => filter_input(INPUT_GET, 'term', FILTER_SANITIZE_STRING) ?: ''
+            ];
+            
+            $result = $this->fetchVehiclesWithPagination($filters, $page);
+            
+            echo json_encode(['success' => true, 'data' => $result]);
+
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'message' => 'Ocorreu um erro ao processar a busca.']);
+        }
+    }
+
+    /**
+     * NOVA FUNÇÃO AJAX: Pega dados de um veículo para edição.
+     */
+    public function ajax_get_vehicle()
+    {
+        header('Content-Type: application/json');
+        $input = json_decode(file_get_contents('php://input'), true);
+        $vehicleId = filter_var($input['vehicle_id'] ?? 0, FILTER_VALIDATE_INT);
+
+        if (!$vehicleId) {
+            echo json_encode(['success' => false, 'message' => 'ID de veículo inválido.']);
+            return;
+        }
+        
+        $stmt = $this->conn->prepare("SELECT * FROM vehicles WHERE id = :id AND current_secretariat_id = :secretariat_id");
+        $stmt->execute([':id' => $vehicleId, ':secretariat_id' => $_SESSION['user_secretariat_id']]);
+        $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($vehicle) {
+            echo json_encode(['success' => true, 'vehicle' => $vehicle]);
+        } else {
+            echo json_encode(['success' => false, 'message' => 'Veículo não encontrado ou acesso negado.']);
+        }
+    }
+
+    /**
+     * Armazena um novo veículo no banco de dados.
+     */
+    public function storeVehicle()
+    {
+        if (!isset($_POST['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+            show_error_page('Acesso Inválido', 'Erro de validação de segurança (CSRF).', 403);
+        }
+
+        // Sanitização e validação dos dados
+        $name = trim($_POST['name']);
+        $plate = trim(strtoupper($_POST['plate']));
+        $prefix = trim(strtoupper($_POST['prefix']));
+        $fuel_capacity = !empty($_POST['fuel_tank_capacity_liters']) ? filter_var($_POST['fuel_tank_capacity_liters'], FILTER_VALIDATE_FLOAT) : null;
+        $avg_consumption = !empty($_POST['avg_km_per_liter']) ? filter_var($_POST['avg_km_per_liter'], FILTER_VALIDATE_FLOAT) : null;
+        $status = in_array($_POST['status'], ['available', 'in_use', 'maintenance', 'blocked']) ? $_POST['status'] : 'available';
+
+        if (empty($name) || empty($plate) || empty($prefix)) {
+            show_error_page('Dados Inválidos', 'Nome, Placa e Prefixo são obrigatórios.');
+        }
+
+        // Verifica se a placa ou prefixo já existem
+        $stmt_check = $this->conn->prepare("SELECT id FROM vehicles WHERE plate = :plate OR prefix = :prefix");
+        $stmt_check->execute([':plate' => $plate, ':prefix' => $prefix]);
+        if ($stmt_check->fetch()) {
+            $_SESSION['error_message'] = "A placa ou o prefixo informado já está cadastrado.";
+            header('Location: ' . BASE_URL . '/sector-manager/vehicles');
+            exit();
+        }
+
+        try {
+            $this->conn->beginTransaction();
+            $stmt = $this->conn->prepare(
+                "INSERT INTO vehicles (name, plate, prefix, current_secretariat_id, fuel_tank_capacity_liters, avg_km_per_liter, status)
+                 VALUES (:name, :plate, :prefix, :secretariat_id, :fuel_capacity, :avg_consumption, :status)"
+            );
+            $newData = [
+                'name' => $name,
+                'plate' => $plate,
+                'prefix' => $prefix,
+                'secretariat_id' => $_SESSION['user_secretariat_id'],
+                'fuel_capacity' => $fuel_capacity,
+                'avg_consumption' => $avg_consumption,
+                'status' => $status
+            ];
+            $stmt->execute([
+                ':name' => $name,
+                ':plate' => $plate,
+                ':prefix' => $prefix,
+                ':secretariat_id' => $_SESSION['user_secretariat_id'],
+                ':fuel_capacity' => $fuel_capacity,
+                ':avg_consumption' => $avg_consumption,
+                ':status' => $status
+            ]);
+            $lastId = $this->conn->lastInsertId();
+
+            $this->auditLog->log($_SESSION['user_id'], 'create_vehicle', 'vehicles', $lastId, null, $newData);
+            $this->conn->commit();
+
+            $_SESSION['success_message'] = "Veículo cadastrado com sucesso!";
+            header('Location: ' . BASE_URL . '/sector-manager/vehicles');
+            exit();
+
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            show_error_page('Erro Interno', 'Não foi possível cadastrar o veículo. Detalhe: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * NOVA FUNÇÃO: Atualiza um veículo existente.
+     */
+    public function updateVehicle()
+    {
+        $vehicleId = filter_input(INPUT_POST, 'vehicle_id', FILTER_VALIDATE_INT);
+        if (!$vehicleId) {
+            show_error_page('Erro', 'ID de veículo inválido.');
+        }
+
+        // Busca dados antigos para o log
+        $stmt = $this->conn->prepare("SELECT * FROM vehicles WHERE id = :id AND current_secretariat_id = :secretariat_id");
+        $stmt->execute([':id' => $vehicleId, ':secretariat_id' => $_SESSION['user_secretariat_id']]);
+        $oldData = $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$oldData) {
+            show_error_page('Acesso Negado', 'Veículo não encontrado ou pertencente a outra secretaria.', 404);
+        }
+
+        // Validação e sanitização
+        $name = trim($_POST['name']);
+        $plate = trim(strtoupper($_POST['plate']));
+        $prefix = trim(strtoupper($_POST['prefix']));
+        $fuel_capacity = !empty($_POST['fuel_tank_capacity_liters']) ? filter_var(str_replace(',', '.', $_POST['fuel_tank_capacity_liters']), FILTER_VALIDATE_FLOAT) : null;
+        $avg_consumption = !empty($_POST['avg_km_per_liter']) ? filter_var(str_replace(',', '.', $_POST['avg_km_per_liter']), FILTER_VALIDATE_FLOAT) : null;
+        $status = in_array($_POST['status'], ['available', 'in_use', 'maintenance', 'blocked']) ? $_POST['status'] : 'available';
+
+        if (empty($name) || empty($plate) || empty($prefix)) {
+            show_error_page('Dados Inválidos', 'Nome, Placa e Prefixo são obrigatórios.');
+        }
+
+        try {
+            $this->conn->beginTransaction();
+
+            $sql = "UPDATE vehicles SET 
+                        name = :name, 
+                        plate = :plate, 
+                        prefix = :prefix, 
+                        fuel_tank_capacity_liters = :fuel_capacity, 
+                        avg_km_per_liter = :avg_consumption, 
+                        status = :status 
+                    WHERE id = :id AND current_secretariat_id = :secretariat_id";
+            
+            $stmt = $this->conn->prepare($sql);
+            
+            // Array de dados para o log (com nomes de coluna do DB)
+            $newData = [
+                'name' => $name,
+                'plate' => $plate,
+                'prefix' => $prefix,
+                'fuel_tank_capacity_liters' => $fuel_capacity,
+                'avg_km_per_liter' => $avg_consumption,
+                'status' => $status
+            ];
+            
+            // Array de parâmetros para a execução do SQL (com nomes dos placeholders)
+            $executeParams = [
+                ':name' => $name,
+                ':plate' => $plate,
+                ':prefix' => $prefix,
+                ':fuel_capacity' => $fuel_capacity,
+                ':avg_consumption' => $avg_consumption,
+                ':status' => $status,
+                ':id' => $vehicleId,
+                ':secretariat_id' => $_SESSION['user_secretariat_id']
+            ];
+
+            $stmt->execute($executeParams);
+
+            // Log de auditoria
+            $this->auditLog->log($_SESSION['user_id'], 'update_vehicle', 'vehicles', $vehicleId, $oldData, $newData);
+            $this->conn->commit();
+
+            $_SESSION['success_message'] = "Veículo atualizado com sucesso!";
+            header('Location: ' . BASE_URL . '/sector-manager/vehicles');
+            exit();
+        } catch (PDOException $e) {
+            $this->conn->rollBack();
+            show_error_page('Erro Interno', 'Não foi possível atualizar o veículo. Detalhe: ' . $e->getMessage(), 500);
+        }
+    }
+
+    /**
+     * NOVA FUNÇÃO: Exclui um veículo.
+     */
+    public function deleteVehicle()
+    {
+        $vehicleId = filter_input(INPUT_POST, 'vehicle_id', FILTER_VALIDATE_INT);
+        $justificativa = trim($_POST['justificativa']);
+        $confirmacao = trim($_POST['confirm_phrase']);
+
+        if ($confirmacao !== "eu entendo que essa mudança é irreversivel" || empty($justificativa)) {
+            show_error_page('Confirmação Inválida', 'A frase de confirmação está incorreta ou a justificativa está vazia.', 400);
+        }
+        
+        $this->conn->beginTransaction();
+        try {
+            // 1. Pega os dados do veículo antes de deletar para o log e verificação
+            $stmt = $this->conn->prepare("SELECT * FROM vehicles WHERE id = :id AND current_secretariat_id = :secretariat_id");
+            $stmt->execute([':id' => $vehicleId, ':secretariat_id' => $_SESSION['user_secretariat_id']]);
+            $vehicleData = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$vehicleData) {
+                throw new Exception("Veículo não encontrado ou não pertence à sua secretaria.");
+            }
+            
+            // 2. Encontra todas as corridas (runs) associadas a este veículo
+            $stmt_runs = $this->conn->prepare("SELECT id FROM runs WHERE vehicle_id = :vehicle_id");
+            $stmt_runs->execute([':vehicle_id' => $vehicleId]);
+            $run_ids = $stmt_runs->fetchAll(PDO::FETCH_COLUMN);
+
+            // 3. Se houver corridas, exclui os registros dependentes (checklists e abastecimentos)
+            if (!empty($run_ids)) {
+                $inQuery = implode(',', array_fill(0, count($run_ids), '?'));
+                
+                // Exclui checklists associados às corridas
+                $this->conn->prepare("DELETE FROM checklists WHERE run_id IN ($inQuery)")->execute($run_ids);
+                
+                // Exclui abastecimentos associados às corridas
+                $this->conn->prepare("DELETE FROM fuelings WHERE run_id IN ($inQuery)")->execute($run_ids);
+            }
+            
+            // 4. Exclui as próprias corridas
+            $this->conn->prepare("DELETE FROM runs WHERE vehicle_id = :vehicle_id")->execute([':vehicle_id' => $vehicleId]);
+
+            // 5. Finalmente, exclui o veículo
+            $stmt_delete = $this->conn->prepare("DELETE FROM vehicles WHERE id = :id");
+            $stmt_delete->execute([':id' => $vehicleId]);
+
+            if ($stmt_delete->rowCount() > 0) {
+                // Registra a ação no log de auditoria
+                $logDetails = ['justificativa' => $justificativa, 'deleted_vehicle_plate' => $vehicleData['plate']];
+                $this->auditLog->log($_SESSION['user_id'], 'delete_vehicle_cascade', 'vehicles', $vehicleId, $vehicleData, $logDetails);
+                
+                $this->conn->commit();
+                $_SESSION['success_message'] = "Veículo e todos os seus registros associados foram excluídos com sucesso!";
+            } else {
+                throw new Exception("Falha ao excluir o registro principal do veículo.");
+            }
+
+            header('Location: ' . BASE_URL . '/sector-manager/vehicles');
+            exit();
+
+        } catch (Exception $e) {
+            $this->conn->rollBack();
+            // A verificação de chave estrangeira não é mais necessária, pois estamos tratando manualmente,
+            // mas mantemos um erro genérico para outros problemas.
+            show_error_page('Erro Interno', 'Não foi possível processar a exclusão. Detalhe: ' . $e->getMessage(), 500);
+        }
+    }
+
+        /**
+     * NOVA FUNÇÃO: Exibe o histórico de alterações para veículos.
+     */
+    public function vehicleHistory()
+    {
+        $page = filter_input(INPUT_GET, 'page', FILTER_VALIDATE_INT) ?: 1;
+        $perPage = 15;
+        $offset = ($page - 1) * $perPage;
+
+        // Conta o total de registros
+        $countSql = "SELECT COUNT(*) FROM audit_logs al JOIN users actor ON al.user_id = actor.id WHERE al.table_name = 'vehicles' AND actor.secretariat_id = :secretariat_id";
+        $stmtTotal = $this->conn->prepare($countSql);
+        $stmtTotal->execute([':secretariat_id' => $_SESSION['user_secretariat_id']]);
+        $totalResults = $stmtTotal->fetchColumn();
+        $totalPages = ceil($totalResults / $perPage);
+        
+        // Busca os logs da página atual
+        $sql = "
+            SELECT 
+                al.*,
+                actor.name as actor_name,
+                target.plate as target_plate
+            FROM audit_logs al
+            JOIN users actor ON al.user_id = actor.id
+            LEFT JOIN vehicles target ON al.record_id = target.id
+            WHERE al.table_name = 'vehicles' AND actor.secretariat_id = :secretariat_id
+            ORDER BY al.created_at DESC
+            LIMIT :limit OFFSET :offset
+        ";
+
+        try {
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bindValue(':secretariat_id', $_SESSION['user_secretariat_id'], PDO::PARAM_INT);
+            $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+            $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+            $stmt->execute();
+            $logs = $stmt->fetchAll();
+
+            $paginationBaseUrl = BASE_URL . '/sector-manager/vehicles/history';
+            $paginationHtml = $this->generatePaginationHtml($page, $totalPages, $totalResults, $paginationBaseUrl);
+
+            $data = ['logs' => $logs, 'paginationHtml' => $paginationHtml];
+            extract($data);
+
+            require_once __DIR__ . '/../../templates/pages/sector_manager/vehicle_history.php';
+
+        } catch (PDOException $e) {
+            show_error_page('Erro de Banco de Dados', 'Não foi possível carregar o histórico de veículos.', 500);
+        }
+    }
 }
