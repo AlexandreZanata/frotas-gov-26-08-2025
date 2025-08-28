@@ -62,6 +62,9 @@ $router->post('runs/ajax-get-fuels', 'DiarioBordoController@ajax_get_fuels_by_st
 // Rota para salvar o abastecimento de forma independente
 $router->post('runs/fueling/store', 'DiarioBordoController@storeFueling');
 
+// Rotas para o Gestor Setorial
+$router->get('sector-manager/users/create', 'SectorManagerController@createUser');
+$router->post('sector-manager/users/store', 'SectorManagerController@storeUser');
 
 // Processa a requisição atual com a URL já tratada
 $router->dispatch(new Request());

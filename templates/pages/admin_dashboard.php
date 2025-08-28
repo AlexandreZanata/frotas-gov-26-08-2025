@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard do Gestor - Frotas Gov</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/admin_dashboard.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <div class="overlay"></div>
@@ -20,7 +20,11 @@
                 <li><a href="#"><i class="fas fa-car"></i> Veículos</a></li>
                 <li><a href="#"><i class="fas fa-road"></i> Corridas</a></li>
                 <li><a href="#"><i class="fas fa-gas-pump"></i> Abastecimentos</a></li>
-                <li><a href="/frotas-gov/public/users/create"><i class="fas fa-user-plus"></i> Cadastrar Usuário</a></li>
+                
+                <?php if (isset($_SESSION['user_role_id']) && $_SESSION['user_role_id'] == 2): ?>
+                <li><a href="<?php echo BASE_URL; ?>/sector-manager/users/create"><i class="fas fa-user-plus"></i> Cadastrar Usuário</a></li>
+                <?php endif; ?>
+
                 <li><a href="/frotas-gov/public/logout"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
             </ul>
         </nav>
@@ -83,6 +87,11 @@
     <script>
         document.getElementById('menu-toggle').addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('open');
+            document.querySelector('.overlay').classList.toggle('active');
+        });
+        document.querySelector('.overlay').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.remove('open');
+            this.classList.remove('active');
         });
     </script>
 </body>
