@@ -66,12 +66,24 @@ $router->post('runs/fueling/store', 'DiarioBordoController@storeFueling');
 $router->get('sector-manager/users/create', 'SectorManagerController@createUser');
 $router->post('sector-manager/users/store', 'SectorManagerController@storeUser');
 
-// rota para gerenciar usuarios
+// --- NOVAS ROTAS PARA GERENCIAMENTO ---
+$router->get('sector-manager/users/manage', 'SectorManagerController@manageUsers'); // Página da tabela
+$router->post('sector-manager/users/update', 'SectorManagerController@updateUser'); // Processa a atualização
+$router->post('sector-manager/users/reset-password', 'SectorManagerController@resetUserPassword'); // Processa o reset
+$router->post('sector-manager/users/delete', 'SectorManagerController@deleteUser'); // Processa a exclusão
+
+// Rota antiga (pode ser mantida para retrocompatibilidade ou removida)
 $router->get('sector-manager/users', 'SectorManagerController@listUsers');
-$router->get('sector-manager/users/manage', 'SectorManagerController@manageUsers');
 
 // Rota para a página de histórico de logs
 $router->get('sector-manager/history', 'SectorManagerController@history');
+
+$router->post('sector-manager/ajax/get-user', 'SectorManagerController@ajax_get_user');
+
+$router->post('sector-manager/users/update', 'SectorManagerController@updateUser');
+$router->post('sector-manager/users/reset-password', 'SectorManagerController@resetUserPassword');
+
+$router->get('sector-manager/ajax/search-users', 'SectorManagerController@ajax_search_users');
 
 // Processa a requisição atual com a URL já tratada
 $router->dispatch(new Request());
