@@ -66,5 +66,12 @@ $router->post('runs/fueling/store', 'DiarioBordoController@storeFueling');
 $router->get('sector-manager/users/create', 'SectorManagerController@createUser');
 $router->post('sector-manager/users/store', 'SectorManagerController@storeUser');
 
+// rota para gerenciar usuarios
+$router->get('sector-manager/users', 'SectorManagerController@listUsers');
+$router->get('sector-manager/users/manage', 'SectorManagerController@manageUsers');
+
+// Rota para a página de histórico de logs
+$router->get('sector-manager/history', 'SectorManagerController@history');
+
 // Processa a requisição atual com a URL já tratada
 $router->dispatch(new Request());

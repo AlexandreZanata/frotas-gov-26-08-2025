@@ -33,7 +33,7 @@
     </aside>
 
     <main class="main-content">
-        <header class="main-header">
+        <header class="header">
             <h1>Cadastrar Novo Usuário</h1>
             <div class="user-info">
                 <span>Olá, <?php echo htmlspecialchars($_SESSION['user_name']); ?></span>
@@ -73,9 +73,11 @@
                             <select id="role_id" name="role_id" required>
                                 <option value="">Selecione um cargo</option>
                                 <?php foreach ($roles as $role): ?>
+                                    <?php if ($role['id'] > $_SESSION['user_role_id']): ?>
                                     <option value="<?php echo htmlspecialchars($role['id']); ?>">
                                         <?php echo htmlspecialchars($role['name']); ?>
                                     </option>
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
                             </select>
                         </div>

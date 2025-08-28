@@ -68,6 +68,12 @@ body {
     color: #fff;
 }
 
+.sidebar-nav li.active > a,
+.sidebar-nav a:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+}
+
 .main-content {
     margin-left: 250px;
     width: calc(100% - 250px);
