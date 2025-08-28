@@ -58,7 +58,9 @@ document.addEventListener('DOMContentLoaded', () => {
         `).join('');
     };
 
-    // Função central para buscar e atualizar a tabela
+    /**
+     * CORRIGIDO: Melhor tratamento de erros na resposta da requisição.
+     */
     const fetchAndUpdateUsers = async (page = 1) => {
         const searchTerm = searchTermInput.value;
         const roleId = roleFilterSelect.value;
@@ -68,18 +70,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch(`${BASE_URL}/sector-manager/ajax/search-users?page=${page}&term=${encodeURIComponent(searchTerm)}&role_id=${roleId}`);
-            if (!response.ok) throw new Error('Erro na requisição ao servidor.');
+            const result = await response.json(); // Tenta ler o JSON mesmo se a resposta for um erro
+
+            if (!response.ok) {
+                // Se o servidor retornou um erro (4xx, 5xx), usa a mensagem do JSON se disponível
+                throw new Error(result.message || 'Erro na requisição ao servidor.');
+            }
             
-            const result = await response.json();
             if (result.success && result.data) {
                 userTableBody.innerHTML = generateTableRows(result.data.users);
                 paginationContainer.innerHTML = result.data.paginationHtml;
             } else {
+                // Se a requisição foi OK (200), mas a operação falhou (success: false)
                 userTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: red;">${result.message || 'Erro ao buscar usuários.'}</td></tr>`;
             }
         } catch (error) {
             console.error('Falha ao buscar usuários:', error);
-            userTableBody.innerHTML = '<tr><td colspan="5" style="text-align:center; color: red;">Falha na comunicação com o servidor.</td></tr>';
+            userTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color: red;">${error.message}</td></tr>`;
         }
     };
 

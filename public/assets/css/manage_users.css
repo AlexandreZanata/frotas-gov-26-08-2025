@@ -295,4 +295,24 @@
     font-size: 0.9em;
 }
 
+    .details-block {
+        font-family: monospace;
+        font-size: 0.85em;
+        background-color: #f8fafc;
+        padding: 10px;
+        border-radius: 4px;
+        /* Remover white-space: pre-wrap; e word-break: break-all; */
+        /* E vamos usar display: block para cada linha para controlar melhor a quebra */
+    }
+    .details-block strong { color: #1e40af; }
+    .details-block .old { color: #be123c; }
+    .details-block .new { color: #166534; }
+
+    /* NOVO: Estilo para cada linha de detalhe */
+    .details-block p {
+        margin: 0; /* Remove margens padrão de parágrafos */
+        line-height: 1.4; /* Ajusta espaçamento entre linhas */
+        white-space: pre-wrap; /* Mantém a formatação de espaço dentro do P */
+        word-break: break-word; /* Quebra palavras longas */
+    }
 

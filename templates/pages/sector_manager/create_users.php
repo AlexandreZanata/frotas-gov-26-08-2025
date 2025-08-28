@@ -60,7 +60,12 @@
             </div>
 
             <div class="table-container">
+                <div class="section-header">
                 <h2 class="section-title">Controle de Usuários da Secretaria</h2>
+                <a href="<?php echo BASE_URL; ?>/sector-manager/users/history" class="btn-history">
+                        <i class="fas fa-history"></i> Histórico de Alterações
+                </a>
+                </div>
 
                 <div class="filter-bar">
                     <div class="search-wrapper">

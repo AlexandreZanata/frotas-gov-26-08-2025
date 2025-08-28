@@ -6,16 +6,7 @@
     <title>Controle de Usuários</title>
     <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/admin_dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        /* Estilos para a tabela e modais */
-        .table-container { padding: 2rem; background-color: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #ddd; }
-        .actions a { margin-right: 10px; color: #007bff; text-decoration: none; }
-        .actions a.delete { color: #dc3545; }
-        .status-active { color: #28a745; font-weight: bold; }
-        .status-inactive { color: #6c757d; font-weight: bold; }
-    </style>
+
 </head>
 <body>
     <div class="overlay"></div>
